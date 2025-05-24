@@ -21,10 +21,10 @@ jobs:
           POSTGRES_USER: postgres # database.ymlのtest環境のusernameに合わせてください
           POSTGRES_PASSWORD: password # database.ymlのtest環境のpasswordに合わせてください
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "pg_isready -U postgres"
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 5
+          --health-retries 10
 
     steps:
       - name: Checkout code
@@ -39,30 +39,38 @@ jobs:
       - name: Install dependencies
         run: bundle install --jobs 4 --retry 3
 
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
       - name: Wait for PostgreSQL to be ready
         run: |
-          for i in $(seq 1 10); do
+          for i in $(seq 1 20); do
             if pg_isready -h localhost -p 5432 -U postgres; then
               echo "PostgreSQL is ready"
               exit 0
             fi
-            echo "Waiting for PostgreSQL... ($i/10)"
-            sleep 1
+            echo "Waiting for PostgreSQL... ($i/20)"
+            sleep 2
           done
           echo "PostgreSQL did not become ready"
           exit 1
         env:
-          PGUSER: postgres # servicesで設定したユーザー名をここでも指定
+          PGUSER: postgres
+          PGPASSWORD: password
 
       - name: Setup database
         run: |
+          bundle exec rails db:drop RAILS_ENV=test || true
           bundle exec rails db:create RAILS_ENV=test
-          bundle exec rails db:migrate RAILS_ENV=test
+          bundle exec rails db:schema:load RAILS_ENV=test
         env:
-          PGHOST: localhost # servicesで定義したホスト名またはIPを指定 (通常はlocalhostでOK)
+          PGHOST: localhost
           PGUSER: postgres
           PGPASSWORD: password
           PGDATABASE: app_test
+          RAILS_ENV: test
 
       - name: Run RSpec tests
         run: bundle exec rspec
@@ -71,3 +79,4 @@ jobs:
           PGUSER: postgres
           PGPASSWORD: password
           PGDATABASE: app_test
+          RAILS_ENV: test
