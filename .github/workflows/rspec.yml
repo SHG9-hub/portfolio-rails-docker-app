@@ -1,0 +1,82 @@
+name: RSpec Tests
+
+on:
+  push:
+    branches: [main] # プッシュ時に実行したいブランチを指定
+  pull_request:
+    branches: [main] # プルリクエスト時に実行したいブランチを指定
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      # PostgreSQLサービスコンテナを定義
+      postgres:
+        image: postgres:13 # 使用するPostgreSQLのバージョンを指定
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_DB: app_test # database.ymlのtest環境のdatabase名に合わせてください
+          POSTGRES_USER: postgres # database.ymlのtest環境のusernameに合わせてください
+          POSTGRES_PASSWORD: password # database.ymlのtest環境のpasswordに合わせてください
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version # または '3.x.x' のように具体的なバージョンを指定
+          bundler-cache: true # bundle install をキャッシュする
+
+      - name: Install dependencies
+        run: bundle install --jobs 4 --retry 3
+
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      - name: Wait for PostgreSQL to be ready
+        run: |
+          for i in $(seq 1 20); do
+            if pg_isready -h localhost -p 5432 -U postgres; then
+              echo "PostgreSQL is ready"
+              exit 0
+            fi
+            echo "Waiting for PostgreSQL... ($i/20)"
+            sleep 2
+          done
+          echo "PostgreSQL did not become ready"
+          exit 1
+        env:
+          PGUSER: postgres
+          PGPASSWORD: password
+
+      - name: Setup database
+        run: |
+          bundle exec rails db:drop RAILS_ENV=test || true
+          bundle exec rails db:create RAILS_ENV=test
+          bundle exec rails db:schema:load RAILS_ENV=test
+        env:
+          PGHOST: localhost
+          PGUSER: postgres
+          PGPASSWORD: password
+          PGDATABASE: app_test
+          RAILS_ENV: test
+
+      - name: Run RSpec tests
+        run: bundle exec rspec
+        env:
+          PGHOST: localhost
+          PGUSER: postgres
+          PGPASSWORD: password
+          PGDATABASE: app_test
+          RAILS_ENV: test
