@@ -15,6 +15,7 @@
       <th>出勤時間</th>
       <th>退勤時間</th>
       <th>勤務時間</th>
+      <th>退勤ボタン</th>
     </tr>
   </thead>
   <tbody>
@@ -30,6 +31,10 @@
         <%= attendance.check_out.strftime("%H:%M") if attendance.check_out %>
       </td>
       <td>勤務時間計算（未実装）</td>
+      <td>
+        <% if attendance.check_in.present? && attendance.check_out.nil? %> <%=
+        link_to "退勤", edit_attendance_path(attendance) %> <% end %>
+      </td>
     </tr>
     <% end %>
   </tbody>

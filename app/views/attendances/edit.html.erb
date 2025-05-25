@@ -1,0 +1,11 @@
+<h1>退勤ページ</h1>
+
+<%= form_with(model: @attendance, url: attendance_path(@attendance), method:
+:patch) do |form| %>
+<div>
+  <%= form.label :check_out, "退勤日時" %><br />
+  <%= form.datetime_field :check_out, value: Time.current %>
+</div>
+
+<div><%= form.submit "退勤する" %></div>
+<% end %> <%= link_to "一覧に戻る", attendances_path %>
