@@ -1,0 +1,13 @@
+<h1>打刻ページ</h1>
+
+<p>ここに打刻フォームまたはボタンを設置します。</p>
+
+<%= form_with(model: @attendance, url: attendances_path, method: :post) do
+|form| %>
+<div>
+  <%= form.label :check_in, "出勤日時" %><br />
+  <%= form.datetime_field :check_in %>
+</div>
+
+<div><%= form.submit "打刻する" %></div>
+<% end %> <%= link_to "一覧に戻る", attendances_path %>

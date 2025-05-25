@@ -1,4 +1,39 @@
 <h1>Hello</h1>
 
+<p>現在のユーザー: <%= current_user.email %></p>
+
 <%= link_to "ログアウト", destroy_user_session_path, data: { "turbo-method":
-:delete } %>
+:delete } %> <%= link_to "打刻する", new_attendance_path %>
+
+<h2>勤怠履歴</h2>
+
+<% if @attendances.present? %>
+<table>
+  <thead>
+    <tr>
+      <th>日付</th>
+      <th>出勤時間</th>
+      <th>退勤時間</th>
+      <th>勤務時間</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @attendances.each do |attendance| %>
+    <tr>
+      <td>
+        <%= attendance.check_in.strftime("%Y-%m-%d") if attendance.check_in %>
+      </td>
+      <td>
+        <%= attendance.check_in.strftime("%H:%M") if attendance.check_in %>
+      </td>
+      <td>
+        <%= attendance.check_out.strftime("%H:%M") if attendance.check_out %>
+      </td>
+      <td>勤務時間計算（未実装）</td>
+    </tr>
+    <% end %>
+  </tbody>
+</table>
+<% else %>
+<p>まだ勤怠記録がありません。</p>
+<% end %>
