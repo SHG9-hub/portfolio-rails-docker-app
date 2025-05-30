@@ -1,7 +1,7 @@
 ---
 description: 
 globs: 
-alwaysApply: true
+alwaysApply: false
 ---
 はい、承知いたしました。RailsでDevise、RSpec、Dockerを使用した勤怠管理アプリの要件定義書とタスクリストを作成します。
 

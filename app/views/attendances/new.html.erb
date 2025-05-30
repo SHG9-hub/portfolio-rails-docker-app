@@ -6,7 +6,7 @@
 |form| %>
 <div>
   <%= form.label :check_in, "出勤日時" %><br />
-  <%= form.datetime_field :check_in %>
+  <%= form.datetime_field :check_in, value: Time.current %>
 </div>
 
 <div><%= form.submit "打刻する" %></div>
