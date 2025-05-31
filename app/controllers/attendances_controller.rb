@@ -35,7 +35,7 @@ class AttendancesController < ApplicationController
     def destroy
         @attendance = current_user.attendances.find(params[:id])
         @attendance.destroy
-        redirect_to attendance_path
+        redirect_to attendances_path
     end
 
     private

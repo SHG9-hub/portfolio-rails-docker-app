@@ -52,4 +52,41 @@ RSpec.describe "Attendances", type: :request do
       expect(Attendance.last.user).to eq(user)
     end
   end
+
+  describe "PATCH /attendances/:id" do
+    let(:check_in_time) { Time.zone.parse('2025-01-01 09:00:00') }
+    let!(:attendance) { Attendance.create!(user: user, check_in: check_in_time, check_out: nil) }
+
+    it "勤怠レコードのcheck_outが設定されること" do
+      patch "/attendances/#{attendance.id}", params: { attendance: { check_out: '' } }
+      attendance.reload
+      expect(attendance.check_out).to be_present
+      expect(attendance.check_out).to be_within(1.minute).of(Time.current)
+    end
+
+    it "attendances_pathにリダイレクトされること" do
+      patch "/attendances/#{attendance.id}", params: { attendance: { check_out: '' } }
+      expect(response).to redirect_to(attendances_path)
+    end
+  end
+
+  describe "DELETE /attendances/:id" do
+    let!(:attendance) { Attendance.create!(user: user, check_in: Time.current, check_out: Time.current + 8.hours) }
+
+    it "勤怠記録が削除される" do
+      expect {
+        delete attendance_path(attendance)
+      }.to change(Attendance, :count).by(-1)
+    end
+
+    it "削除後にattendances_pathにリダイレクトされる" do
+      delete attendance_path(attendance)
+      expect(response).to redirect_to(attendances_path)
+    end
+
+    it "削除された記録が存在しないことを確認" do
+      delete attendance_path(attendance)
+      expect { Attendance.find(attendance.id) }.to raise_error(ActiveRecord::RecordNotFound)
+    end
+  end
 end
