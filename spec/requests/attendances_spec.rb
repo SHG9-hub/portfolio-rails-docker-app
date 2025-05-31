@@ -26,6 +26,36 @@ RSpec.describe "Attendances", type: :request do
       expect(response).to have_http_status(:success)
       expect(response.body).to include("まだ勤怠記録がありません")
     end
+
+    context "勤務時間の表示" do
+      it "出勤・退勤が完了している場合、勤務時間が表示される" do
+        check_in_time = Time.zone.parse('2025-01-15 09:00:00')
+        check_out_time = Time.zone.parse('2025-01-15 18:00:00')
+        Attendance.create!(user: user, check_in: check_in_time, check_out: check_out_time)
+        
+        get attendances_path
+        expect(response).to have_http_status(:success)
+        expect(response.body).to include("9.0 時間")
+      end
+
+      it "出勤のみで退勤がない場合、'未退勤'が表示される" do
+        Attendance.create!(user: user, check_in: Time.zone.parse('2025-01-15 09:00:00'), check_out: nil)
+        
+        get attendances_path
+        expect(response).to have_http_status(:success)
+        expect(response.body).to include("未退勤")
+      end
+
+      it "8時間30分の勤務時間が正しく表示される" do
+        check_in_time = Time.zone.parse('2025-01-15 09:00:00')
+        check_out_time = Time.zone.parse('2025-01-15 17:30:00')
+        Attendance.create!(user: user, check_in: check_in_time, check_out: check_out_time)
+        
+        get attendances_path
+        expect(response).to have_http_status(:success)
+        expect(response.body).to include("8.5 時間")
+      end
+    end
   end
 
   describe "GET /attendances/new" do
@@ -57,16 +87,25 @@ RSpec.describe "Attendances", type: :request do
     let(:check_in_time) { Time.zone.parse('2025-01-01 09:00:00') }
     let!(:attendance) { Attendance.create!(user: user, check_in: check_in_time, check_out: nil) }
 
-    it "勤怠レコードのcheck_outが設定されること" do
-      patch "/attendances/#{attendance.id}", params: { attendance: { check_out: '' } }
+    it"勤怠レコードのcheck_outが設定されること" do
+      check_out_time = Time.current.strftime('%Y-%m-%dT%H:%M')
+      patch "/attendances/#{attendance.id}", params: { attendance: { check_out: check_out_time } }
       attendance.reload
       expect(attendance.check_out).to be_present
-      expect(attendance.check_out).to be_within(1.minute).of(Time.current)
+      expect(attendance.check_out).to be_within(1.minute).of(Time.zone.parse(check_out_time))
     end
 
     it "attendances_pathにリダイレクトされること" do
       patch "/attendances/#{attendance.id}", params: { attendance: { check_out: '' } }
       expect(response).to redirect_to(attendances_path)
+    end
+
+    it "退勤後に勤務時間が正しく計算・表示されること" do
+      check_out_time = '2025-01-01T17:00'
+      patch "/attendances/#{attendance.id}", params: { attendance: { check_out: check_out_time } }
+      
+      get attendances_path
+      expect(response.body).to include("8.0 時間")
     end
   end
 

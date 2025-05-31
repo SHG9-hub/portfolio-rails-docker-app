@@ -24,7 +24,7 @@ class AttendancesController < ApplicationController
 
     def update
         @attendance = current_user.attendances.find(params[:id])
-        if @attendance.update(attendance_params.merge(check_out: Time.current))
+        if @attendance.update(attendance_params)
             redirect_to attendances_path
         else
             flash.now[:alert] = @attendance.errors.full_messages.join(', ')
