@@ -16,6 +16,7 @@
       <th>退勤時間</th>
       <th>勤務時間</th>
       <th>退勤ボタン</th>
+      <th>削除</th>
     </tr>
   </thead>
   <tbody>
@@ -34,6 +35,10 @@
       <td>
         <% if attendance.check_in.present? && attendance.check_out.nil? %> <%=
         link_to "退勤", edit_attendance_path(attendance) %> <% end %>
+      </td>
+      <td>
+        <%= link_to "削除", attendance_path(attendance), data: { turbo_method:
+        :delete, turbo_confirm: '本当に削除しますか？' } %>
       </td>
     </tr>
     <% end %>
