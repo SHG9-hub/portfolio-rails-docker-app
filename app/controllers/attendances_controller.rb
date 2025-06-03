@@ -1,7 +1,9 @@
 class AttendancesController < ApplicationController
     before_action :authenticate_user!
     def index
-        @attendances = current_user.attendances.order(check_in: :desc)
+        @selected_year = params[:year].present? ? params[:year].to_i : Date.current.year
+        @selected_month = params[:month].present? ? params[:month].to_i : Date.current.month
+        @attendances = current_user.attendances.month_record(@selected_year, @selected_month)
     end
 
     def new
