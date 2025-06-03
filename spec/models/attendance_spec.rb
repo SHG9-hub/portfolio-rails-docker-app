@@ -115,6 +115,77 @@ RSpec.describe Attendance, type: :model do
     end
   end
 
+  describe 'スコープとクラスメソッド' do
+    let(:user) { User.create!(email: "test@example.com", password: "password") }
+    let!(:attendance1) do
+      Attendance.create!(user: user, check_in: Time.zone.parse('2025-01-10 09:00:00'), check_out: Time.zone.parse('2025-01-10 18:00:00'))
+    end
+    let!(:attendance2) do
+      Attendance.create!(user: user, check_in: Time.zone.parse('2025-01-15 09:00:00'), check_out: Time.zone.parse('2025-01-15 17:30:00'))
+    end
+    let!(:attendance3) do
+      Attendance.create!(user: user, check_in: Time.zone.parse('2025-02-01 09:00:00'), check_out: Time.zone.parse('2025-02-01 18:00:00'))
+    end
+    let!(:attendance4) do
+      Attendance.create!(user: user, check_in: Time.zone.parse('2024-01-10 09:00:00'), check_out: Time.zone.parse('2024-01-10 18:00:00'))
+    end
+    let!(:attendance5) do # 退勤なしのレコード
+      Attendance.create!(user: user, check_in: Time.zone.parse('2025-01-20 09:00:00'), check_out: nil)
+    end
+
+    describe '.month_record' do
+      context '指定した年月の勤怠記録がある場合' do
+        it '該当年月の記録のみをcheck_inの昇順で返す' do
+          records = Attendance.month_record(2025, 1)
+          expect(records.count).to eq(3)
+          expect(records).to include(attendance1, attendance2, attendance5)
+          expect(records).not_to include(attendance3, attendance4)
+          expect(records.first).to eq(attendance1) # check_inの昇順
+        end
+      end
+
+      context '指定した年月の勤怠記録がない場合' do
+        it '空のActiveRecord::Relationを返す' do
+          records = Attendance.month_record(2026, 1)
+          expect(records).to be_empty
+        end
+      end
+
+      context '年が整数で渡されない場合' do
+        it '文字列で渡されても正しくフィルタリングする' do
+          records = Attendance.month_record('2025', 1)
+          expect(records.count).to eq(3)
+          expect(records).to include(attendance1, attendance2, attendance5)
+        end
+      end
+
+      context '月が整数で渡されない場合' do
+        it '文字列で渡されても正しくフィルタリングする' do
+          records = Attendance.month_record(2025, '1')
+          expect(records.count).to eq(3)
+          expect(records).to include(attendance1, attendance2, attendance5)
+        end
+      end
+    end
+
+    describe '.total_working_hours' do
+      it '指定した勤怠記録の合計勤務時間を計算して返す' do
+        # attendance1: 9時間, attendance2: 8.5時間, attendance5: 0時間 (nil -> 0)
+        attendances = Attendance.where(id: [attendance1.id, attendance2.id, attendance5.id])
+        expect(attendances.total_working_hours).to eq(9.0 + 8.5 + 0.0)
+      end
+
+      it '空のコレクションの場合は0.0を返す' do
+        expect(Attendance.none.total_working_hours).to eq(0.0)
+      end
+
+      it '全ての記録が退勤なしの場合、0.0を返す' do
+        attendances_no_checkout = Attendance.where(id: [attendance5.id])
+        expect(attendances_no_checkout.total_working_hours).to eq(0.0)
+      end
+    end
+  end
+
   describe 'データベースカラム' do
     it "check_inカラムを持つこと" do
       expect(Attendance.column_names).to include("check_in")
