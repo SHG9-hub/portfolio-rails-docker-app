@@ -1,0 +1,49 @@
+
+$blue: #3498db;
+$green: #2ecc71;
+$red: #e74c3c;
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f5f5f5;
+  padding: 20px;
+}
+
+h1 {
+  color: $blue;
+  text-align: center;
+  font-size: 2em;
+}
+
+a {
+  background-color: $blue;
+  color: white;
+  padding: 10px 15px;
+  text-decoration: none;
+  border-radius: 5px;
+  margin: 5px;
+  display: inline-block;
+  
+  &:hover {
+    background-color: darken($blue, 10%);
+  }
+}
+
+table {
+  width: 100%;
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 20px;
+  
+  th {
+    background-color: $blue;
+    color: white;
+    padding: 10px;
+  }
+  
+  td {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+  }
+}
