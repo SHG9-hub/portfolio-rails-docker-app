@@ -4,7 +4,8 @@
 :patch) do |form| %>
 <div>
   <%= form.label :check_out, "退勤日時" %><br />
-  <%= form.datetime_field :check_out, value: Time.current %>
+  <%= form.datetime_field :check_out, value:
+  Time.current.strftime('%Y-%m-%dT%H:%M') %>
 </div>
 
 <div><%= form.submit "退勤する" %></div>

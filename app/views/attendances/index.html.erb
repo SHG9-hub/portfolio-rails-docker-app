@@ -5,14 +5,34 @@
 <%= link_to "ログアウト", destroy_user_session_path, data: { "turbo-method":
 :delete } %> <%= link_to "打刻する", new_attendance_path %>
 
+<div class="month-selector">
+  <h3>年月を選択:</h3>
+  <%= form_with url: attendances_path, method: :get, local: true do |form| %>
+  <div class="date-selection">
+    <%= form.number_field :year, value: @selected_year, min:
+    current_user.attendances.first&.check_in&.year || Date.current.year, max:
+    Date.current.year, placeholder: "年", onchange: "this.form.submit();" %> 年
+    <%= form.select :month, options_for_select((1..12).map { |m| [m, m] },
+    @selected_month), { prompt: "月を選択" }, { onchange: "this.form.submit();"
+    } %> 月
+  </div>
+  <% end %>
+</div>
+
+<div class="monthly-summary">
+  <h3><%= @selected_year %>年<%= @selected_month %>月の勤怠時間合計</h3>
+  <p><strong><%= @attendances.total_working_hours %> 時間</strong></p>
+</div>
+
 <h2>勤怠履歴</h2>
 
 <% if @attendances.present? %>
 <table>
   <thead>
     <tr>
-      <th>日付</th>
+      <th>出勤日</th>
       <th>出勤時間</th>
+      <th>退勤日</th>
       <th>退勤時間</th>
       <th>勤務時間</th>
       <th>退勤ボタン</th>
@@ -29,9 +49,15 @@
         <%= attendance.check_in.strftime("%H:%M") if attendance.check_in %>
       </td>
       <td>
+        <%= attendance.check_out.strftime("%Y-%m-%d") if attendance.check_out %>
+      </td>
+      <td>
         <%= attendance.check_out.strftime("%H:%M") if attendance.check_out %>
       </td>
-      <td>勤務時間計算（未実装）</td>
+      <td>
+        <%= attendance.working_hours ? "#{attendance.working_hours} 時間" :
+        '未退勤' %>
+      </td>
       <td>
         <% if attendance.check_in.present? && attendance.check_out.nil? %> <%=
         link_to "退勤", edit_attendance_path(attendance) %> <% end %>
@@ -45,5 +71,5 @@
   </tbody>
 </table>
 <% else %>
-<p>まだ勤怠記録がありません。</p>
+<p><%= @selected_year %>年<%= @selected_month %>月の勤怠記録がありません。</p>
 <% end %>
