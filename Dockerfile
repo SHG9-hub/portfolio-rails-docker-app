@@ -5,12 +5,6 @@ WORKDIR /app
 COPY Gemfile Gemfile.lock ./
 RUN bundle install
 
-# Add Node.js and Yarn (corepackを使用してyarnを有効化)
-RUN apt-get update -qq && \
-    apt-get install -y nodejs && \
-    corepack enable && \
-    rm -rf /var/lib/apt/lists/*
-
 COPY . .
 
 EXPOSE 3000

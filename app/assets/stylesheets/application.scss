@@ -1,0 +1,693 @@
+@use 'sass:color';
+
+$blue: #3498db;
+$green: #2ecc71;
+$red: #e74c3c;
+
+// 新しいDevise認証用の色変数
+$primary-color: #667eea;
+$primary-dark: #4c51bf;
+$primary-light: #a3bffa;
+$success-color: #48bb78;
+$danger-color: #f56565;
+$warning-color: #ed8936;
+$gray-50: #f9fafb;
+$gray-100: #f7fafc;
+$gray-200: #edf2f7;
+$gray-300: #e2e8f0;
+$gray-400: #cbd5e0;
+$gray-500: #a0aec0;
+$gray-600: #718096;
+$gray-700: #4a5568;
+$gray-800: #2d3748;
+$gray-900: #1a202c;
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, $primary-light 0%, $primary-color 100%);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+h1 {
+  color: $blue;
+  text-align: center;
+  font-size: 2em;
+}
+
+a {
+  background-color: $blue;
+  color: white;
+  padding: 10px 15px;
+  text-decoration: none;
+  border-radius: 5px;
+  margin: 5px;
+  display: inline-block;
+  
+  &:hover {
+    background-color: color.adjust($blue, $lightness: -10%);
+  }
+}
+
+table {
+  width: 100%;
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 20px;
+  
+  th {
+    background-color: $blue;
+    color: white;
+    padding: 10px;
+  }
+  
+  td {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+  }
+}
+
+// ==== Devise認証フォームスタイル ====
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  padding: 20px;
+}
+
+.auth-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  padding: 3rem;
+  width: 100%;
+  max-width: 450px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.auth-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: $gray-800;
+  margin: 0 0 0.5rem 0;
+  background: linear-gradient(135deg, $primary-color, $primary-dark);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.auth-subtitle {
+  color: $gray-600;
+  font-size: 1rem;
+  margin: 0;
+  font-weight: 400;
+}
+
+.auth-form {
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-label {
+    display: block;
+    font-weight: 600;
+    color: $gray-700;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid $gray-200;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: white;
+    box-sizing: border-box;
+
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      transform: translateY(-1px);
+    }
+
+    &::placeholder {
+      color: $gray-400;
+    }
+  }
+
+  .form-hint {
+    display: block;
+    font-size: 0.8rem;
+    color: $gray-500;
+    margin-top: 0.25rem;
+    font-style: italic;
+  }
+
+  .form-checkbox {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+
+    .checkbox-input {
+      margin-right: 0.5rem;
+      transform: scale(1.2);
+    }
+
+    .checkbox-label {
+      color: $gray-700;
+      font-size: 0.9rem;
+      margin: 0;
+      cursor: pointer;
+    }
+  }
+
+  .form-actions {
+    margin-top: 2rem;
+  }
+}
+
+// ボタンスタイル
+.btn {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, $primary-color, $primary-dark);
+  color: white;
+
+  &:hover {
+    background: linear-gradient(135deg, $primary-dark, color.adjust($primary-dark, $lightness: -10%));
+  }
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, $danger-color, color.adjust($danger-color, $lightness: -10%));
+  color: white;
+
+  &:hover {
+    background: linear-gradient(135deg, color.adjust($danger-color, $lightness: -10%), color.adjust($danger-color, $lightness: -20%));
+  }
+}
+
+.btn-social {
+  background: linear-gradient(135deg, $gray-600, $gray-700);
+  color: white;
+  margin-top: 1rem;
+
+  &:hover {
+    background: linear-gradient(135deg, $gray-700, $gray-800);
+  }
+}
+
+.btn-full {
+  width: 100%;
+}
+
+// 認証リンク
+.auth-links {
+  margin-top: 2rem;
+  text-align: center;
+  padding-top: 2rem;
+  border-top: 1px solid $gray-200;
+
+  .auth-link {
+    color: $primary-color;
+    text-decoration: none;
+    font-weight: 500;
+    margin: 0 0.75rem;
+    padding: 0.5rem 0;
+    display: inline-block;
+    transition: all 0.3s ease;
+    background: none;
+    box-shadow: none;
+    border-radius: 0;
+
+    &:hover {
+      color: $primary-dark;
+      text-decoration: underline;
+      transform: none;
+      background: none;
+      box-shadow: none;
+    }
+  }
+}
+
+// エラーメッセージ
+.error-messages {
+  background: linear-gradient(135deg, rgba(245, 101, 101, 0.1), rgba(245, 101, 101, 0.05));
+  border: 1px solid rgba(245, 101, 101, 0.2);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+
+  .error-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.75rem;
+
+    .error-icon {
+      font-size: 1.2rem;
+      margin-right: 0.5rem;
+    }
+
+    .error-title {
+      color: $danger-color;
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0;
+    }
+  }
+
+  .error-list {
+    margin: 0;
+    padding-left: 1.5rem;
+
+    .error-item {
+      color: color.adjust($danger-color, $lightness: -10%);
+      font-size: 0.9rem;
+      margin-bottom: 0.25rem;
+    }
+  }
+}
+
+// 確認通知
+.confirmation-notice {
+  background: linear-gradient(135deg, rgba(72, 187, 120, 0.1), rgba(72, 187, 120, 0.05));
+  border: 1px solid rgba(72, 187, 120, 0.2);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+
+  .notice-icon {
+    font-size: 1.2rem;
+    margin-right: 0.5rem;
+  }
+
+  span:last-child {
+    color: $success-color;
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+}
+
+// 危険ゾーン（アカウント削除）
+.danger-zone {
+  margin-top: 3rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, rgba(245, 101, 101, 0.05), rgba(245, 101, 101, 0.02));
+  border: 1px solid rgba(245, 101, 101, 0.1);
+  border-radius: 12px;
+
+  .danger-title {
+    color: $danger-color;
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+  }
+
+  .danger-description {
+    color: $gray-600;
+    font-size: 0.9rem;
+    margin: 0 0 1rem 0;
+  }
+}
+
+// レスポンシブデザイン
+@media (max-width: 768px) {
+  .auth-container {
+    padding: 10px;
+  }
+
+  .auth-card {
+    padding: 2rem;
+    margin: 10px;
+  }
+
+  .auth-title {
+    font-size: 1.75rem;
+  }
+}
+
+// ==== メインコンテンツ ====
+.main-content {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+// ==== ダッシュボード ====
+.dashboard-container {
+  .user-info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    
+    .user-greeting {
+      .greeting-text {
+        color: white;
+        font-weight: 500;
+        font-size: 1rem;
+      }
+    }
+    
+    .header-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+  }
+
+  .page-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    .page-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: white;
+      margin: 0 0 0.5rem 0;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .page-subtitle {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 1.1rem;
+      margin: 0;
+      font-weight: 400;
+    }
+  }
+  
+  .dashboard-actions {
+    text-align: center;
+    margin-bottom: 3rem;
+    
+    .btn-large {
+      font-size: 1.2rem;
+      padding: 1rem 2rem;
+    }
+  }
+}
+
+// ==== カード ====
+.card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  
+  .card-header {
+    padding: 1.5rem 2rem 1rem 2rem;
+    border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+    
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: $gray-800;
+      margin: 0;
+    }
+  }
+  
+  .card-body {
+    padding: 2rem;
+  }
+}
+
+.summary-card {
+  .summary-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+  }
+  
+  .stat-item {
+    text-align: center;
+    
+    .stat-value {
+      display: block;
+      font-size: 2.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, $primary-color, $primary-dark);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+      color: $gray-600;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+  }
+}
+
+// ==== 追加のダッシュボードスタイル ====
+
+// フォームスタイル
+.filter-form {
+  .form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    align-items: end;
+  }
+}
+
+.form-help {
+  display: block;
+  font-size: 0.8rem;
+  color: $gray-500;
+  margin-top: 0.25rem;
+  font-style: italic;
+}
+
+// テーブルスタイル
+.table-container {
+  overflow-x: auto;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  
+  .attendance-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    
+    th {
+      background: linear-gradient(135deg, $primary-color, $primary-dark);
+      color: white;
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    
+    td {
+      padding: 1rem;
+      border-bottom: 1px solid $gray-200;
+      font-size: 0.9rem;
+      
+      &.working-hours {
+        text-align: center;
+      }
+      
+      &.actions {
+        text-align: center;
+        white-space: nowrap;
+      }
+    }
+    
+    tr.incomplete {
+      background: rgba(237, 137, 54, 0.05);
+      
+      td {
+        border-bottom-color: rgba(237, 137, 54, 0.1);
+      }
+    }
+    
+    tr:hover {
+      background: rgba(102, 126, 234, 0.02);
+    }
+  }
+}
+
+// バッジスタイル
+.hours-badge {
+  background: linear-gradient(135deg, $success-color, color.adjust($success-color, $lightness: -10%));
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.incomplete-badge {
+  background: linear-gradient(135deg, $warning-color, color.adjust($warning-color, $lightness: -10%));
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  
+  &.active {
+    background: linear-gradient(135deg, $success-color, color.adjust($success-color, $lightness: -10%));
+    color: white;
+  }
+}
+
+.working-badge {
+  background: linear-gradient(135deg, $warning-color, color.adjust($warning-color, $lightness: -10%));
+  color: white;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  margin-left: 0.5rem;
+}
+
+// ボタンの追加スタイル
+.btn-success {
+  background: linear-gradient(135deg, $success-color, color.adjust($success-color, $lightness: -10%));
+  color: white;
+
+  &:hover {
+    background: linear-gradient(135deg, color.adjust($success-color, $lightness: -10%), color.adjust($success-color, $lightness: -20%));
+  }
+}
+
+.btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+  margin: 0 0.25rem;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 2px solid $primary-color;
+  color: $primary-color;
+  
+  &:hover {
+    background: $primary-color;
+    color: white;
+  }
+}
+
+// エンプティステート
+.empty-state {
+  text-align: center;
+  padding: 3rem 2rem;
+  
+  .empty-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+  }
+  
+  h4 {
+    color: $gray-700;
+    font-size: 1.25rem;
+    margin: 0 0 0.5rem 0;
+    font-weight: 600;
+  }
+  
+  p {
+    color: $gray-500;
+    margin: 0 0 1.5rem 0;
+  }
+}
+
+// バックリンク
+.back-link {
+  color: $primary-color !important;
+  text-decoration: none;
+  font-weight: 500;
+  background: none !important;
+  box-shadow: none !important;
+  padding: 0.5rem 0 !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  
+  &:hover {
+    color: $primary-dark !important;
+    text-decoration: underline;
+    transform: none !important;
+    background: none !important;
+    box-shadow: none !important;
+  }
+}
+
+// レスポンシブ追加
+@media (max-width: 768px) {
+  .main-content {
+    padding: 1rem;
+  }
+  
+  .dashboard-container {
+    .user-info-header {
+      flex-direction: column;
+      gap: 1rem;
+      text-align: center;
+    }
+    
+    .page-header .page-title {
+      font-size: 2rem;
+    }
+  }
+  
+  .summary-stats {
+    grid-template-columns: 1fr;
+  }
+  
+  .table-container {
+    font-size: 0.8rem;
+  }
+}
+
