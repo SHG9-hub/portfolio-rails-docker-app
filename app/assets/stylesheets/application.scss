@@ -22,6 +22,7 @@ $gray-700: #4a5568;
 $gray-800: #2d3748;
 $gray-900: #1a202c;
 
+// ==== 基本スタイル ====
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background: linear-gradient(135deg, $primary-light 0%, $primary-color 100%);
@@ -69,6 +70,13 @@ table {
     padding: 10px;
     border-bottom: 1px solid #eee;
   }
+}
+
+// ==== メインコンテンツ ====
+.main-content {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 // ==== Devise認証フォームスタイル ====
@@ -180,7 +188,23 @@ table {
   }
 }
 
-// ボタンスタイル
+// フォーム追加スタイル
+.form-row {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 1.5rem;
+  align-items: end;
+}
+
+.form-help {
+  display: block;
+  font-size: 0.8rem;
+  color: $gray-500;
+  margin-top: 0.25rem;
+  font-style: italic;
+}
+
+// ==== ボタンスタイル ====
 .btn {
   display: inline-block;
   padding: 0.75rem 1.5rem;
@@ -213,12 +237,30 @@ table {
   }
 }
 
+.btn-success {
+  background: linear-gradient(135deg, $success-color, color.adjust($success-color, $lightness: -10%));
+  color: white;
+
+  &:hover {
+    background: linear-gradient(135deg, color.adjust($success-color, $lightness: -10%), color.adjust($success-color, $lightness: -20%));
+  }
+}
+
 .btn-danger {
   background: linear-gradient(135deg, $danger-color, color.adjust($danger-color, $lightness: -10%));
   color: white;
 
   &:hover {
     background: linear-gradient(135deg, color.adjust($danger-color, $lightness: -10%), color.adjust($danger-color, $lightness: -20%));
+  }
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, $gray-600, $gray-700);
+  color: white;
+
+  &:hover {
+    background: linear-gradient(135deg, $gray-700, $gray-800);
   }
 }
 
@@ -232,11 +274,33 @@ table {
   }
 }
 
+.btn-outline {
+  background: transparent;
+  border: 2px solid $primary-color;
+  color: $primary-color;
+  
+  &:hover {
+    background: $primary-color;
+    color: white;
+  }
+}
+
 .btn-full {
   width: 100%;
 }
 
-// 認証リンク
+.btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+  margin: 0 0.25rem;
+}
+
+.btn-large {
+  font-size: 1.2rem;
+  padding: 1rem 2rem;
+}
+
+// ==== 認証リンク ====
 .auth-links {
   margin-top: 2rem;
   text-align: center;
@@ -265,7 +329,27 @@ table {
   }
 }
 
-// エラーメッセージ
+// バックリンク
+.back-link {
+  color: $primary-color !important;
+  text-decoration: none;
+  font-weight: 500;
+  background: none !important;
+  box-shadow: none !important;
+  padding: 0.5rem 0 !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  
+  &:hover {
+    color: $primary-dark !important;
+    text-decoration: underline;
+    transform: none !important;
+    background: none !important;
+    box-shadow: none !important;
+  }
+}
+
+// ==== エラーメッセージ・アラート ====
 .error-messages {
   background: linear-gradient(135deg, rgba(245, 101, 101, 0.1), rgba(245, 101, 101, 0.05));
   border: 1px solid rgba(245, 101, 101, 0.2);
@@ -301,6 +385,27 @@ table {
       margin-bottom: 0.25rem;
     }
   }
+}
+
+// 統一されたアラートスタイル
+.alert {
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.alert-success {
+  background: linear-gradient(135deg, rgba(72, 187, 120, 0.1), rgba(72, 187, 120, 0.05));
+  border: 1px solid rgba(72, 187, 120, 0.2);
+  color: $success-color;
+}
+
+.alert-danger {
+  background: linear-gradient(135deg, rgba(245, 101, 101, 0.1), rgba(245, 101, 101, 0.05));
+  border: 1px solid rgba(245, 101, 101, 0.2);
+  color: $danger-color;
 }
 
 // 確認通知
@@ -344,22 +449,6 @@ table {
     color: $gray-600;
     font-size: 0.9rem;
     margin: 0 0 1rem 0;
-  }
-}
-
-// レスポンシブデザイン
-@media (max-width: 768px) {
-  .auth-container {
-    padding: 10px;
-  }
-
-  .auth-card {
-    padding: 2rem;
-    margin: 10px;
-  }
-
-  .auth-title {
-    font-size: 1.75rem;
   }
 }
 
@@ -414,34 +503,6 @@ table {
   }
 }
 
-// ログインページ用のアラートスタイル
-.alert {
-  border-radius: 12px;
-  padding: 1rem;
-  margin-bottom: 1.5rem;
-  font-weight: 500;
-  font-size: 0.9rem;
-}
-
-.alert-success {
-  background: linear-gradient(135deg, rgba(72, 187, 120, 0.1), rgba(72, 187, 120, 0.05));
-  border: 1px solid rgba(72, 187, 120, 0.2);
-  color: $success-color;
-}
-
-.alert-danger {
-  background: linear-gradient(135deg, rgba(245, 101, 101, 0.1), rgba(245, 101, 101, 0.05));
-  border: 1px solid rgba(245, 101, 101, 0.2);
-  color: $danger-color;
-}
-
-// ==== メインコンテンツ ====
-.main-content {
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
 // ==== ダッシュボード ====
 .dashboard-container {
   .user-info-header {
@@ -484,11 +545,20 @@ table {
         gap: 0.5rem;
       }
     }
+    
+    .user-greeting {
+      .greeting-text {
+        color: white;
+        font-size: 1.1rem;
+        font-weight: 500;
+      }
+    }
   }
 
   .page-header {
     text-align: center;
     margin-bottom: 2rem;
+    
     .page-title {
       font-size: 2.5rem;
       font-weight: 700;
@@ -508,11 +578,6 @@ table {
   .dashboard-actions {
     text-align: center;
     margin-bottom: 3rem;
-    
-    .btn-large {
-      font-size: 1.2rem;
-      padding: 1rem 2rem;
-    }
   }
 }
 
@@ -526,7 +591,6 @@ table {
   margin-bottom: 2rem;
   text-align: center;
   transition: all 0.3s ease;
-
 }
 
 .clock-display {
@@ -616,6 +680,7 @@ table {
   }
 }
 
+// サマリーカード
 .summary-card {
   .summary-stats {
     display: grid;
@@ -645,27 +710,7 @@ table {
   }
 }
 
-// ==== 追加のダッシュボードスタイル ====
-
-// フォームスタイル
-.filter-form {
-  .form-row {
-    display: grid;
-    grid-template-columns: 120px 1fr;
-    gap: 1.5rem;
-    align-items: end;
-  }
-}
-
-.form-help {
-  display: block;
-  font-size: 0.8rem;
-  color: $gray-500;
-  margin-top: 0.25rem;
-  font-style: italic;
-}
-
-// テーブルスタイル
+// ==== テーブルスタイル ====
 .table-container {
   overflow-x: auto;
   border-radius: 12px;
@@ -754,7 +799,7 @@ table {
   }
 }
 
-// バッジスタイル
+// ==== バッジ・ステータス ====
 .hours-badge {
   background: linear-gradient(135deg, $success-color, color.adjust($success-color, $lightness: -10%));
   color: white;
@@ -764,7 +809,7 @@ table {
   font-weight: 600;
 }
 
-.incomplete-badge {
+.working-badge {
   background: linear-gradient(135deg, $warning-color, color.adjust($warning-color, $lightness: -10%));
   color: white;
   padding: 0.3rem 0.9rem;
@@ -774,10 +819,22 @@ table {
 }
 
 .status-badge {
+  display: inline-block;
   padding: 0.25rem 0.75rem;
   border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 600;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-left: 1rem;
+
+  &.working {
+    background-color: #fef3c7;
+    color: #d97706;
+  }
+
+  &.completed {
+    background-color: #d1fae5;
+    color: #059669;
+  }
   
   &.active {
     background: linear-gradient(135deg, $success-color, color.adjust($success-color, $lightness: -10%));
@@ -785,44 +842,7 @@ table {
   }
 }
 
-.working-badge {
-  background: linear-gradient(135deg, $warning-color, color.adjust($warning-color, $lightness: -10%));
-  color: white;
-  padding: 0.2rem 0.5rem;
-  border-radius: 12px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  margin-left: 0.5rem;
-}
-
-// ボタンの追加スタイル
-.btn-success {
-  background: linear-gradient(135deg, $success-color, color.adjust($success-color, $lightness: -10%));
-  color: white;
-
-  &:hover {
-    background: linear-gradient(135deg, color.adjust($success-color, $lightness: -10%), color.adjust($success-color, $lightness: -20%));
-  }
-}
-
-.btn-sm {
-  padding: 0.5rem 1rem;
-  font-size: 0.8rem;
-  margin: 0 0.25rem;
-}
-
-.btn-outline {
-  background: transparent;
-  border: 2px solid $primary-color;
-  color: $primary-color;
-  
-  &:hover {
-    background: $primary-color;
-    color: white;
-  }
-}
-
-// エンプティステート
+// ==== エンプティステート ====
 .empty-state {
   text-align: center;
   padding: 3rem 2rem;
@@ -845,179 +865,7 @@ table {
   }
 }
 
-// バックリンク
-.back-link {
-  color: $primary-color !important;
-  text-decoration: none;
-  font-weight: 500;
-  background: none !important;
-  box-shadow: none !important;
-  padding: 0.5rem 0 !important;
-  margin: 0 !important;
-  border-radius: 0 !important;
-  
-  &:hover {
-    color: $primary-dark !important;
-    text-decoration: underline;
-    transform: none !important;
-    background: none !important;
-    box-shadow: none !important;
-  }
-}
-
-// 勤怠記録詳細ページのスタイル
-.detail-card {
-  margin-top: 2rem;
-}
-
-.status-badge {
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  margin-left: 1rem;
-
-  &.working {
-    background-color: #fef3c7;
-    color: #d97706;
-  }
-
-  &.completed {
-    background-color: #d1fae5;
-    color: #059669;
-  }
-}
-
-.detail-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  margin-bottom: 2rem;
-}
-
-.detail-item {
-  padding: 1.5rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  background-color: #f9fafb;
-
-  &.full-width {
-    grid-column: 1 / -1;
-  }
-}
-
-.detail-label {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #6b7280;
-  margin-bottom: 0.5rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.detail-value {
-  font-size: 1.125rem;
-  color: #111827;
-}
-
-.datetime-display {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-
-  .date {
-    font-weight: 600;
-    color: #374151;
-  }
-
-  .time {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #111827;
-  }
-}
-
-.no-data {
-  color: #9ca3af;
-  font-style: italic;
-}
-
-.working-status {
-  color: #d97706;
-  font-weight: 600;
-  animation: pulse 2s infinite;
-}
-
-.working-hours-display {
-  display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
-
-  &.incomplete .working-indicator {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #d97706;
-  }
-}
-
-.hours-large {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #059669;
-}
-
-.hours-unit {
-  font-size: 1.125rem;
-  color: #6b7280;
-}
-
-.action-buttons {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  padding-top: 2rem;
-  border-top: 1px solid #e5e7eb;
-}
-
-.btn-large {
-  padding: 0.75rem 2rem;
-  font-size: 1.125rem;
-  font-weight: 600;
-}
-
-// 出勤日リンクのスタイル（青いボタンではなくシンプルなテキストリンク）
-.attendance-link {
-  color: $primary-color !important;
-  text-decoration: none !important;
-  font-weight: 600 !important;
-  font-size: 1.05rem !important;
-  background: none !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  border-radius: 0 !important;
-  transition: color 0.2s ease;
-
-  &:hover {
-    color: $primary-dark !important;
-    text-decoration: underline !important;
-    transform: none !important;
-    background: none !important;
-    box-shadow: none !important;
-  }
-}
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-}
-
-// 勤怠記録カードスタイル
+// ==== 勤怠記録カードスタイル ====
 .attendance-cards {
   display: block;
 }
@@ -1131,7 +979,112 @@ table {
   }
 }
 
-// レスポンシブ追加
+// ==== 詳細ページスタイル ====
+.detail-card {
+  margin-top: 2rem;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.detail-item {
+  padding: 1.5rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background-color: #f9fafb;
+
+  &.full-width {
+    grid-column: 1 / -1;
+  }
+}
+
+.detail-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.detail-value {
+  font-size: 1.125rem;
+  color: #111827;
+}
+
+.datetime-display {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  .date {
+    font-weight: 600;
+    color: #374151;
+  }
+
+  .time {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+  }
+}
+
+.no-data {
+  color: #9ca3af;
+  font-style: italic;
+}
+
+.working-status {
+  color: #d97706;
+  font-weight: 600;
+  animation: pulse 2s infinite;
+}
+
+.working-hours-display {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+
+  &.incomplete .working-indicator {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #d97706;
+  }
+}
+
+.hours-large {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #059669;
+}
+
+.hours-unit {
+  font-size: 1.125rem;
+  color: #6b7280;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  padding-top: 2rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+// ==== レスポンシブデザイン ====
 @media (max-width: 807px) {
   .main-content {
     padding: 1rem;
@@ -1165,11 +1118,9 @@ table {
   }
   
   // フォームのレスポンシブ
-  .filter-form {
-    .form-row {
-      grid-template-columns: 1fr;
-      gap: 1rem;
-    }
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
   
   // 時刻表示カードのレスポンシブ
@@ -1226,9 +1177,23 @@ table {
   }
 }
 
+@media (max-width: 768px) {
+  .auth-container {
+    padding: 10px;
+  }
+
+  .auth-card {
+    padding: 2rem;
+    margin: 10px;
+  }
+
+  .auth-title {
+    font-size: 1.75rem;
+  }
+}
+
 // モバイル専用スタイル調整
 @media (max-width: 588px) {
-  
   // 時刻表示カードのモバイル対応
   .clock-card {
     .clock-display {
