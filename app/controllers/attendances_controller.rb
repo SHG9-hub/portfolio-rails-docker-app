@@ -6,6 +6,10 @@ class AttendancesController < ApplicationController
         @attendances = current_user.attendances.month_record(@selected_year, @selected_month)
     end
 
+    def show
+        @attendance = current_user.attendances.find(params[:id])
+    end
+
     def new
         @attendance = Attendance.new
     end

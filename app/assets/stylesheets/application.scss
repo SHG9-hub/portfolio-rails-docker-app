@@ -664,6 +664,157 @@ table {
   }
 }
 
+// 勤怠記録詳細ページのスタイル
+.detail-card {
+  margin-top: 2rem;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-left: 1rem;
+
+  &.working {
+    background-color: #fef3c7;
+    color: #d97706;
+  }
+
+  &.completed {
+    background-color: #d1fae5;
+    color: #059669;
+  }
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.detail-item {
+  padding: 1.5rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background-color: #f9fafb;
+
+  &.full-width {
+    grid-column: 1 / -1;
+  }
+}
+
+.detail-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.detail-value {
+  font-size: 1.125rem;
+  color: #111827;
+}
+
+.datetime-display {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  .date {
+    font-weight: 600;
+    color: #374151;
+  }
+
+  .time {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+  }
+}
+
+.no-data {
+  color: #9ca3af;
+  font-style: italic;
+}
+
+.working-status {
+  color: #d97706;
+  font-weight: 600;
+  animation: pulse 2s infinite;
+}
+
+.working-hours-display {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+
+  &.incomplete .working-indicator {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #d97706;
+  }
+}
+
+.hours-large {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #059669;
+}
+
+.hours-unit {
+  font-size: 1.125rem;
+  color: #6b7280;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  padding-top: 2rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.btn-large {
+  padding: 0.75rem 2rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+// 出勤日リンクのスタイル（青いボタンではなくシンプルなテキストリンク）
+.attendance-link {
+  color: $primary-color !important;
+  text-decoration: none !important;
+  font-weight: 500 !important;
+  background: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: $primary-dark !important;
+    text-decoration: underline !important;
+    transform: none !important;
+    background: none !important;
+    box-shadow: none !important;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
 // レスポンシブ追加
 @media (max-width: 768px) {
   .main-content {
@@ -688,6 +839,19 @@ table {
   
   .table-container {
     font-size: 0.8rem;
+  }
+
+  .detail-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  .hours-large {
+    font-size: 2rem;
   }
 }
 

@@ -60,14 +60,13 @@
                 <th>退勤日</th>
                 <th>退勤時間</th>
                 <th>勤務時間</th>
-                <th>操作</th>
               </tr>
             </thead>
             <tbody>
               <% @attendances.each do |attendance| %>
                 <tr class="<%= 'incomplete' if attendance.check_out.nil? %>">
                   <td>
-                    <%= attendance.check_in.strftime("%Y年%m月%d日") if attendance.check_in %>
+                    <%= link_to (attendance.check_in.strftime("%Y年%m月%d日") if attendance.check_in), attendance_path(attendance), class: "attendance-link" %>
                   </td>
                   <td>
                     <%= attendance.check_in.strftime("%H:%M") if attendance.check_in %>
@@ -84,14 +83,6 @@
                     <% else %>
                       <span class="incomplete-badge">勤務中</span>
                     <% end %>
-                  </td>
-                  <td class="actions">
-                    <% if attendance.check_in.present? && attendance.check_out.nil? %>
-                      <%= link_to "退勤", edit_attendance_path(attendance), class: "btn btn-success btn-sm" %>
-                    <% end %>
-                    <%= link_to "削除", attendance_path(attendance), 
-                        data: { turbo_method: :delete, turbo_confirm: '本当に削除しますか？' }, 
-                        class: "btn btn-danger btn-sm" %>
                   </td>
                 </tr>
               <% end %>
