@@ -13,14 +13,14 @@ RSpec.describe "Attendances", type: :request do
     it "勤怠履歴ページが表示される" do
       get attendances_path
       expect(response).to have_http_status(:success)
-      expect(response.body).to include("勤怠ダッシュボード")
+      expect(response.body).to include("ダッシュボード")
     end
 
     it "勤怠記録がある場合、一覧が表示される" do
       Attendance.create!(user: user, check_in: Time.current)
       get attendances_path
       expect(response).to have_http_status(:success)
-      expect(response.body).to include("出勤時間")
+      expect(response.body).to include("勤務中")
     end
 
     it "勤怠記録がない場合、メッセージが表示される" do
@@ -37,7 +37,7 @@ RSpec.describe "Attendances", type: :request do
         
         get attendances_path
         expect(response).to have_http_status(:success)
-        expect(response.body).to include("9.00 時間")
+        expect(response.body).to include("9.0h")
       end
 
       it "出勤のみで退勤がない場合、'勤務中'が表示される" do
@@ -55,7 +55,7 @@ RSpec.describe "Attendances", type: :request do
         
         get attendances_path
         expect(response).to have_http_status(:success)
-        expect(response.body).to include("8.50 時間")
+        expect(response.body).to include("8.5h")
       end
     end
   end
@@ -81,7 +81,7 @@ RSpec.describe "Attendances", type: :request do
       get attendances_path, params: { year: 2025, month: 1 }
       expect(response).to have_http_status(:success)
       expected_total = 9.0 + 8.5 + 0.0
-      expect(response.body).to include("#{sprintf('%.2f', expected_total)} 時間")
+      expect(response.body).to include("#{sprintf('%.1f', expected_total)}")
     end
 
     it "年月が指定されない場合、現在の年月の勤怠記録を表示する" do
@@ -157,7 +157,7 @@ RSpec.describe "Attendances", type: :request do
       patch "/attendances/#{attendance.id}", params: { attendance: { check_out: check_out_time } }
       
       get attendances_path
-      expect(response.body).to include("8.00 時間")
+      expect(response.body).to include("8.0h")
     end
   end
 

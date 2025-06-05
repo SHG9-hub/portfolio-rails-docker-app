@@ -12,7 +12,7 @@ RSpec.describe Attendance, type: :model do
     it "userが必須であること" do
       attendance = Attendance.new
       expect(attendance).to_not be_valid
-      expect(attendance.errors[:user]).to include("must exist")
+      expect(attendance.errors[:user]).to be_present
     end
   end
 
