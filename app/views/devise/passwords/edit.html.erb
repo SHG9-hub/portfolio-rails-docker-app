@@ -1,0 +1,37 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <h2 class="auth-title">パスワード変更</h2>
+      <p class="auth-subtitle">新しいパスワードを設定してください</p>
+    </div>
+
+    <%= form_for(resource, as: resource_name, url: password_path(resource_name),
+    html: { method: :put, class: "auth-form" }) do |f| %> <%= render
+    "devise/shared/error_messages", resource: resource %> <%= f.hidden_field
+    :reset_password_token %>
+
+    <div class="form-group">
+      <%= f.label :password, "新しいパスワード", class: "form-label" %> <% if
+      @minimum_password_length %>
+      <span class="form-hint"
+        >（<%= @minimum_password_length %> 文字以上）</span
+      >
+      <% end %> <%= f.password_field :password, autofocus: true, autocomplete:
+      "new-password", class: "form-input", placeholder: "新しいパスワードを入力"
+      %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :password_confirmation, "パスワード確認", class: "form-label"
+      %> <%= f.password_field :password_confirmation, autocomplete:
+      "new-password", class: "form-input", placeholder: "パスワードを再入力" %>
+    </div>
+
+    <div class="form-actions">
+      <%= f.submit "パスワードを変更", class: "btn btn-primary btn-full" %>
+    </div>
+    <% end %>
+
+    <div class="auth-links"><%= render "devise/shared/links" %></div>
+  </div>
+</div>

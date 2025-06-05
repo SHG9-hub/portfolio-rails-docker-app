@@ -1,75 +1,145 @@
-<h1>Hello</h1>
-
-<p>現在のユーザー: <%= current_user.email %></p>
-
-<%= link_to "ログアウト", destroy_user_session_path, data: { "turbo-method":
-:delete } %> <%= link_to "打刻する", new_attendance_path %>
-
-<div class="month-selector">
-  <h3>年月を選択:</h3>
-  <%= form_with url: attendances_path, method: :get, local: true do |form| %>
-  <div class="date-selection">
-    <%= form.number_field :year, value: @selected_year, min:
-    current_user.attendances.first&.check_in&.year || Date.current.year, max:
-    Date.current.year, placeholder: "年", onchange: "this.form.submit();" %> 年
-    <%= form.select :month, options_for_select((1..12).map { |m| [m, m] },
-    @selected_month), { prompt: "月を選択" }, { onchange: "this.form.submit();"
-    } %> 月
+<div class="dashboard-container">
+  <div class="user-info-header">
+    <div class="brand-section">
+      <div class="brand-content">
+        <h1 class="brand-title">Rails Attendance App</h1>
+      </div>
+    </div>
+    <div class="user-section">
+      <div class="header-actions">
+        <%= link_to "ログアウト", destroy_user_session_path, data: { "turbo-method": :delete }, class: "btn btn-danger btn-sm" %>
+      </div>
+    </div>
   </div>
-  <% end %>
+
+  <div class="page-header">
+    <h2 class="page-title"><%= current_user.email.split('@').first %>さんのダッシュボード</h2>
+    <p class="page-subtitle">日々の勤怠記録を管理しましょう</p>
+  </div>
+
+  <div class="clock-card">
+    <div class="clock-display" data-controller="clock">
+      <div class="current-time">
+        <span class="time-digits" data-clock-target="time"></span>
+      </div>
+      <div class="current-date">
+        <span class="date-text" data-clock-target="date"></span>
+      </div>
+    </div>
+    <div class="clock-action">
+      <%= link_to new_attendance_path, class: "punch-button" do %>
+        <span class="punch-icon">⏰</span>
+        <span class="punch-text">今すぐ打刻</span>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">年月選択</h3>
+    </div>
+    <div class="card-body">
+      <%= form_with url: attendances_path, method: :get, local: true, class: "filter-form" do |form| %>
+        <div class="form-row">
+          <div class="form-group">
+            <%= form.label :year, "年", class: "form-label" %>
+            <%= form.number_field :year, 
+                value: @selected_year, 
+                min: current_user.attendances.first&.check_in&.year || Date.current.year, 
+                max: Date.current.year, 
+                class: "form-input",
+                onchange: "this.form.submit();" %>
+          </div>
+          <div class="form-group">
+            <%= form.label :month, "月", class: "form-label" %>
+            <%= form.select :month, 
+                options_for_select((1..12).map { |m| ["#{m}月", m] }, @selected_month), 
+                { prompt: "月を選択" }, 
+                { class: "form-input", onchange: "this.form.submit();" } %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title"><%= @selected_year %>年<%= @selected_month %>月の勤怠記録</h3>
+    </div>
+    <div class="card-body">
+      <% if @attendances.present? %>
+        <!-- 勤怠記録カード表示 -->
+        <div class="attendance-cards">
+          <% @attendances.each do |attendance| %>
+            <div class="attendance-card <%= 'working' if attendance.check_out.nil? %>">
+              <%= link_to attendance_path(attendance), class: "card-link" do %>
+                <div class="card-header-content">
+                  <div class="card-date">
+                    <% if attendance.check_in %>
+                      <% if attendance.check_out && attendance.check_in.to_date != attendance.check_out.to_date %>
+                        <%= "#{attendance.check_in.strftime('%Y年%m月%d日')}～#{attendance.check_out.strftime('%d日')}" %>
+                      <% else %>
+                        <%= attendance.check_in.strftime("%Y年%m月%d日") %>
+                      <% end %>
+                    <% end %>
+                  </div>
+                  <div class="card-status">
+                    <% if attendance.working_hours %>
+                      <span class="hours-badge"><%= sprintf("%.1f", attendance.working_hours) %>h</span>
+                    <% else %>
+                      <span class="working-badge">勤務中</span>
+                    <% end %>
+                  </div>
+                </div>
+                <div class="card-body-content">
+                  <div class="time-info">
+                    <% if attendance.check_in %>
+                      <span class="start-time"><%= attendance.check_in.strftime("%H:%M") %></span>
+                      <% if attendance.check_out %>
+                        <span class="time-arrow"> → </span>
+                        <span class="end-time">
+                          <%= attendance.check_out.strftime("%H:%M") %>
+                          <% if attendance.check_in.to_date != attendance.check_out.to_date %>
+                            <span class="next-day">+1</span>
+                          <% end %>
+                        </span>
+                      <% else %>
+                        <span class="time-arrow"> → </span>
+                        <span class="working-text">勤務中</span>
+                      <% end %>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+        <div class="card summary-card">
+          <div class="card-header">
+            <h3 class="card-title"><%= @selected_year %>年<%= @selected_month %>月の勤務時間</h3>
+          </div>
+          <div class="card-body">
+            <div class="summary-stats">
+              <div class="stat-item">
+                <span class="stat-value"><%= sprintf("%.1f", @attendances.total_working_hours) %></span>
+                <span class="stat-label">総勤務時間</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-value"><%= @attendances.count %></span>
+                <span class="stat-label">出勤日数</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% else %>
+        <div class="empty-state">
+          <div class="empty-icon">📅</div>
+          <h4><%= @selected_year %>年<%= @selected_month %>月の勤怠記録がありません</h4>
+          <p>新しい勤怠記録を作成しましょう</p>
+          </div>
+      <% end %>
+    </div>
+  </div>
 </div>
 
-<div class="monthly-summary">
-  <h3><%= @selected_year %>年<%= @selected_month %>月の勤怠時間合計</h3>
-  <p><strong><%= @attendances.total_working_hours %> 時間</strong></p>
-</div>
 
-<h2>勤怠履歴</h2>
-
-<% if @attendances.present? %>
-<table>
-  <thead>
-    <tr>
-      <th>出勤日</th>
-      <th>出勤時間</th>
-      <th>退勤日</th>
-      <th>退勤時間</th>
-      <th>勤務時間</th>
-      <th>退勤ボタン</th>
-      <th>削除</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @attendances.each do |attendance| %>
-    <tr>
-      <td>
-        <%= attendance.check_in.strftime("%Y-%m-%d") if attendance.check_in %>
-      </td>
-      <td>
-        <%= attendance.check_in.strftime("%H:%M") if attendance.check_in %>
-      </td>
-      <td>
-        <%= attendance.check_out.strftime("%Y-%m-%d") if attendance.check_out %>
-      </td>
-      <td>
-        <%= attendance.check_out.strftime("%H:%M") if attendance.check_out %>
-      </td>
-      <td>
-        <%= attendance.working_hours ? "#{attendance.working_hours} 時間" :
-        '未退勤' %>
-      </td>
-      <td>
-        <% if attendance.check_in.present? && attendance.check_out.nil? %> <%=
-        link_to "退勤", edit_attendance_path(attendance) %> <% end %>
-      </td>
-      <td>
-        <%= link_to "削除", attendance_path(attendance), data: { turbo_method:
-        :delete, turbo_confirm: '本当に削除しますか？' } %>
-      </td>
-    </tr>
-    <% end %>
-  </tbody>
-</table>
-<% else %>
-<p><%= @selected_year %>年<%= @selected_month %>月の勤怠記録がありません。</p>
-<% end %>

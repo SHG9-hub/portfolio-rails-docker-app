@@ -1,12 +1,12 @@
 FROM ruby:3.2.2
 
-RUN apt-get update -qq && apt-get install -y nodejs postgresql-client
 WORKDIR /app
-COPY Gemfile /app/Gemfile
-COPY Gemfile.lock /app/Gemfile.lock
+
+COPY Gemfile Gemfile.lock ./
 RUN bundle install
+
+COPY . .
 
 EXPOSE 3000
 
-# Configure the main process to run when running the image
-CMD ["rails", "server", "-b", "0.0.0.0"]
+CMD ["bundle", "exec", "rails", "s", "-p", "3000", "-b", "0.0.0.0"]

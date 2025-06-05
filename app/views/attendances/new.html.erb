@@ -1,14 +1,26 @@
-<h1>打刻ページ</h1>
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <h2 class="auth-title">出勤打刻</h2>
+      <p class="auth-subtitle">今日も一日頑張りましょう！</p>
+    </div>
 
-<p>ここに打刻フォームまたはボタンを設置します。</p>
+    <%= form_with(model: @attendance, url: attendances_path, method: :post, html: { class: "auth-form" }) do |form| %>
+      <div class="form-group">
+        <%= form.label :check_in, "出勤日時", class: "form-label" %>
+        <%= form.datetime_field :check_in, 
+            value: Time.current.strftime('%Y-%m-%dT%H:%M'), 
+            class: "form-input" %>
+        <small class="form-help">必要に応じて時刻を調整してください</small>
+      </div>
 
-<%= form_with(model: @attendance, url: attendances_path, method: :post) do
-|form| %>
-<div>
-  <%= form.label :check_in, "出勤日時" %><br />
-  <%= form.datetime_field :check_in, value:
-  Time.current.strftime('%Y-%m-%dT%H:%M') %>
+      <div class="form-actions">
+        <%= form.submit "出勤打刻", class: "btn btn-primary btn-full" %>
+      </div>
+    <% end %>
+
+    <div class="auth-links">
+      <%= link_to "← ダッシュボードに戻る", attendances_path, class: "back-link" %>
+    </div>
+  </div>
 </div>
-
-<div><%= form.submit "打刻する" %></div>
-<% end %> <%= link_to "一覧に戻る", attendances_path %>

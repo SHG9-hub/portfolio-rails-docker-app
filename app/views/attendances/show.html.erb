@@ -1,0 +1,87 @@
+<div class="dashboard-container">
+  <div class="user-info-header">
+    <div class="user-greeting">
+      <span class="greeting-text">こんにちは、<%= current_user.email.split('@').first %>さん</span>
+    </div>
+    <div class="header-actions">
+      <%= link_to "ログアウト", destroy_user_session_path, data: { "turbo-method": :delete }, class: "btn btn-danger btn-sm" %>
+    </div>
+  </div>
+
+  <div class="page-header">
+    <h1 class="page-title">勤怠記録詳細</h1>
+    <p class="page-subtitle">選択した勤怠記録の詳細情報</p>
+  </div>
+
+  <div class="card detail-card">
+    <div class="card-header">
+      <h3 class="card-title">
+        <%= @attendance.check_in&.strftime("%Y年%m月%d日") %> の勤怠記録
+        <% if @attendance.check_out.nil? %>
+          <span class="status-badge working">勤務中</span>
+        <% else %>
+          <span class="status-badge completed">退勤済み</span>
+        <% end %>
+      </h3>
+    </div>
+    <div class="card-body">
+      <div class="detail-grid">
+        <div class="detail-item">
+          <div class="detail-label">出勤日時</div>
+          <div class="detail-value">
+            <% if @attendance.check_in %>
+              <div class="datetime-display">
+                <span class="date"><%= @attendance.check_in.strftime("%Y年%m月%d日") %></span>
+                <span class="time"><%= @attendance.check_in.strftime("%H:%M") %></span>
+              </div>
+            <% else %>
+              <span class="no-data">-</span>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="detail-item">
+          <div class="detail-label">退勤日時</div>
+          <div class="detail-value">
+            <% if @attendance.check_out %>
+              <div class="datetime-display">
+                <span class="date"><%= @attendance.check_out.strftime("%Y年%m月%d日") %></span>
+                <span class="time"><%= @attendance.check_out.strftime("%H:%M") %></span>
+              </div>
+            <% else %>
+              <span class="no-data working-status">勤務中...</span>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="detail-item full-width">
+          <div class="detail-label">勤務時間</div>
+          <div class="detail-value">
+            <% if @attendance.working_hours %>
+              <div class="working-hours-display">
+                <span class="hours-large"><%= sprintf("%.2f", @attendance.working_hours) %></span>
+                <span class="hours-unit">時間</span>
+              </div>
+            <% else %>
+              <div class="working-hours-display incomplete">
+                <span class="working-indicator">勤務中</span>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <% if @attendance.check_in.present? && @attendance.check_out.nil? %>
+          <%= link_to "退勤打刻", edit_attendance_path(@attendance), class: "btn btn-success btn-large" %>
+        <% end %>
+        <%= link_to "削除", attendance_path(@attendance), 
+            data: { turbo_method: :delete, turbo_confirm: '本当に削除しますか？この操作は取り消せません。' }, 
+            class: "btn btn-danger" %>
+        <%= link_to "一覧に戻る", attendances_path, class: "btn btn-secondary" %>
+      </div>
+    </div>
+  </div>
+</div>
+
+ 

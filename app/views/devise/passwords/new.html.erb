@@ -1,0 +1,27 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <h2 class="auth-title">パスワードリセット</h2>
+      <p class="auth-subtitle">
+        登録したメールアドレスにリセット手順をお送りします
+      </p>
+    </div>
+
+    <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post, class: "auth-form" }) do |f| %>
+      <%= render "devise/shared/error_messages", resource: resource %>
+
+      <div class="form-group">
+        <%= f.label :email, "メールアドレス", class: "form-label" %>
+        <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "form-input", placeholder: "登録したメールアドレス" %>
+      </div>
+
+      <div class="form-actions">
+        <%= f.submit "リセット手順を送信", class: "btn btn-primary btn-full" %>
+      </div>
+    <% end %>
+
+    <div class="auth-links">
+      <%= render "devise/shared/links" %>
+    </div>
+  </div>
+</div> 

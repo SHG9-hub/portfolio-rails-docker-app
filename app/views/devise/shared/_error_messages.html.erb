@@ -1,0 +1,15 @@
+<% if resource.errors.any? %>
+<div class="error-messages" data-turbo-cache="false">
+  <div class="error-header">
+    <span class="error-icon">⚠️</span>
+    <h3 class="error-title">
+      <%= pluralize(resource.errors.count, "件のエラー") %>が発生しました
+    </h3>
+  </div>
+  <ul class="error-list">
+    <% resource.errors.full_messages.each do |message| %>
+    <li class="error-item"><%= message %></li>
+    <% end %>
+  </ul>
+</div>
+<% end %>
