@@ -363,6 +363,78 @@ table {
   }
 }
 
+// ==== フラッシュメッセージ ====
+.flash-notice, .flash-alert {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  min-width: 300px;
+  max-width: 500px;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  animation: slideIn 0.3s ease-out;
+}
+
+.flash-notice {
+  background: linear-gradient(135deg, rgba(72, 187, 120, 0.95), rgba(72, 187, 120, 0.9));
+  border: 1px solid rgba(72, 187, 120, 0.3);
+}
+
+.flash-alert {
+  background: linear-gradient(135deg, rgba(245, 101, 101, 0.95), rgba(245, 101, 101, 0.9));
+  border: 1px solid rgba(245, 101, 101, 0.3);
+}
+
+.flash-content {
+  display: flex;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  color: white;
+}
+
+.flash-icon {
+  font-size: 1.2rem;
+  margin-right: 0.75rem;
+}
+
+.flash-message {
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+// ログインページ用のアラートスタイル
+.alert {
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.alert-success {
+  background: linear-gradient(135deg, rgba(72, 187, 120, 0.1), rgba(72, 187, 120, 0.05));
+  border: 1px solid rgba(72, 187, 120, 0.2);
+  color: $success-color;
+}
+
+.alert-danger {
+  background: linear-gradient(135deg, rgba(245, 101, 101, 0.1), rgba(245, 101, 101, 0.05));
+  border: 1px solid rgba(245, 101, 101, 0.2);
+  color: $danger-color;
+}
+
 // ==== メインコンテンツ ====
 .main-content {
   padding: 2rem;

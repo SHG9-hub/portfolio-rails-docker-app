@@ -5,7 +5,16 @@
       <p class="auth-subtitle">アカウントにアクセスしてください</p>
     </div>
 
+    <% if notice %>
+      <div class="alert alert-success"><%= notice %></div>
+    <% end %>
+    <% if alert %>
+      <div class="alert alert-danger"><%= alert %></div>
+    <% end %>
+
     <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "auth-form" }) do |f| %>
+    <%= render "devise/shared/error_messages", resource: resource %>
+    
     <div class="form-group">
       <%= f.label :email, "メールアドレス", class: "form-label" %> <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "form-input", placeholder: "your@email.com" %>
     </div>
