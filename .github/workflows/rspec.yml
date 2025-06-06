@@ -60,6 +60,11 @@ jobs:
           PGUSER: postgres
           PGPASSWORD: password
 
+      - name: Compile Sass assets
+        run: bundle exec rails dartsass:build
+        env:
+          RAILS_ENV: test
+
       - name: Setup database
         run: |
           bundle exec rails db:drop RAILS_ENV=test || true

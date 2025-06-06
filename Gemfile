@@ -11,9 +11,6 @@ gem "sprockets-rails"
 # Use dartsass-rails for Sass compilation without Node.js
 gem "dartsass-rails"
 
-# Use sassc-rails for Sass compilation (for CI compatibility)
-gem "sassc-rails"
-
 # Use postgresql as the database for Active Record
 gem "pg", "~> 1.1"
 

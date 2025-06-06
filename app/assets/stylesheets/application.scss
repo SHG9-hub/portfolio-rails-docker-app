@@ -49,7 +49,7 @@ a {
   display: inline-block;
   
   &:hover {
-    background-color: darken($blue, 10%);
+    background-color: color.adjust($blue, $lightness: -10%);
   }
 }
 
@@ -233,25 +233,25 @@ table {
   color: white;
 
   &:hover {
-    background: linear-gradient(135deg, $primary-dark, darken($primary-dark, 10%));
+    background: linear-gradient(135deg, $primary-dark, color.adjust($primary-dark, $lightness: -10%));
   }
 }
 
 .btn-success {
-  background: linear-gradient(135deg, $success-color, darken($success-color, 10%));
+  background: linear-gradient(135deg, $success-color, color.adjust($success-color, $lightness: -10%));
   color: white;
 
   &:hover {
-    background: linear-gradient(135deg, darken($success-color, 10%), darken($success-color, 20%));
+    background: linear-gradient(135deg, color.adjust($success-color, $lightness: -10%), color.adjust($success-color, $lightness: -20%));
   }
 }
 
 .btn-danger {
-  background: linear-gradient(135deg, $danger-color, darken($danger-color, 10%));
+  background: linear-gradient(135deg, $danger-color, color.adjust($danger-color, $lightness: -10%));
   color: white;
 
   &:hover {
-    background: linear-gradient(135deg, darken($danger-color, 10%), darken($danger-color, 20%));
+    background: linear-gradient(135deg, color.adjust($danger-color, $lightness: -10%), color.adjust($danger-color, $lightness: -20%));
   }
 }
 
@@ -380,7 +380,7 @@ table {
     padding-left: 1.5rem;
 
     .error-item {
-      color: darken($danger-color, 10%);
+      color: color.adjust($danger-color, $lightness: -10%);
       font-size: 0.9rem;
       margin-bottom: 0.25rem;
     }
@@ -639,7 +639,7 @@ table {
     box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
 
     &:hover {
-      background: linear-gradient(135deg, $primary-dark, darken($primary-dark, 10%));
+      background: linear-gradient(135deg, $primary-dark, color.adjust($primary-dark, $lightness: -10%));
       transform: translateY(-2px);
       box-shadow: 0 12px 25px rgba(102, 126, 234, 0.4);
     }
@@ -801,7 +801,7 @@ table {
 
 // ==== バッジ・ステータス ====
 .hours-badge {
-  background: linear-gradient(135deg, $success-color, darken($success-color, 10%));
+  background: linear-gradient(135deg, $success-color, color.adjust($success-color, $lightness: -10%));
   color: white;
   padding: 0.3rem 0.9rem;
   border-radius: 20px;
@@ -810,7 +810,7 @@ table {
 }
 
 .working-badge {
-  background: linear-gradient(135deg, $warning-color, darken($warning-color, 10%));
+  background: linear-gradient(135deg, $warning-color, color.adjust($warning-color, $lightness: -10%));
   color: white;
   padding: 0.3rem 0.9rem;
   border-radius: 20px;
@@ -837,7 +837,7 @@ table {
   }
   
   &.active {
-    background: linear-gradient(135deg, $success-color, darken($success-color, 10%));
+    background: linear-gradient(135deg, $success-color, color.adjust($success-color, $lightness: -10%));
     color: white;
   }
 }
@@ -923,7 +923,7 @@ table {
 
 .card-status {
   .hours-badge {
-    background: linear-gradient(135deg, $success-color, darken($success-color, 10%));
+    background: linear-gradient(135deg, $success-color, color.adjust($success-color, $lightness: -10%));
     color: white;
     padding: 0.25rem 0.75rem;
     border-radius: 15px;
@@ -932,7 +932,7 @@ table {
   }
 
   .working-badge {
-    background: linear-gradient(135deg, $warning-color, darken($warning-color, 10%));
+    background: linear-gradient(135deg, $warning-color, color.adjust($warning-color, $lightness: -10%));
     color: white;
     padding: 0.25rem 0.75rem;
     border-radius: 15px;
