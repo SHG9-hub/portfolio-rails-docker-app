@@ -70,6 +70,10 @@ jobs:
         run: bundle exec rails dartsass:build
         env:
           RAILS_ENV: test
+          PGHOST: localhost
+          PGUSER: postgres
+          PGPASSWORD: password
+          PGDATABASE: app_test
 
       - name: Setup database
         run: |
