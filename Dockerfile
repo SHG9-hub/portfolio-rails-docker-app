@@ -22,13 +22,17 @@ RUN bundle config set --local deployment 'true' && \
 COPY . .
 
 # アセットプリコンパイル（本番環境用）
-# 軽量なdatabase設定でアセットプリコンパイルを実行し、その後元に戻す
+# credentialsを一時的にリネームしてアセットプリコンパイル実行
 RUN cp config/database.yml config/database_original.yml && \
     cp config/database_precompile.yml config/database.yml && \
+    mv config/credentials.yml.enc config/credentials.yml.enc.bak && \
+    echo "{}" > config/credentials.yml.enc && \
     RAILS_ENV=production \
-    SECRET_KEY_BASE=dummy \
-    RAILS_MASTER_KEY=dummy \
+    SECRET_KEY_BASE=dummysecretkeythatissixteenbyteslong \
+    RAILS_MASTER_KEY=dummymasterkeythatissixteenbytes \
+    DISABLE_SPRING=true \
     bundle exec rails assets:precompile --trace && \
+    mv config/credentials.yml.enc.bak config/credentials.yml.enc && \
     cp config/database_original.yml config/database.yml
 
 # Production stage
