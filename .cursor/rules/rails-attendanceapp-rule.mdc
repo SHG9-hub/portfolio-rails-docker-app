@@ -1,7 +1,7 @@
 ---
 description: 
 globs: 
-alwaysApply: false
+alwaysApply: true
 ---
 **Docker環境での勤怠管理アプリケーション開発ルール**
 

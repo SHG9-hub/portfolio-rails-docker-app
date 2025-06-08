@@ -18,8 +18,8 @@ Rails.application.configure do
 
   # Ensures that a master key has been made available in ENV["RAILS_MASTER_KEY"], config/master.key, or an environment
   # key such as config/credentials/production.key. This key is used to decrypt credentials (and other encrypted files).
-  # Master key必須設定
-  config.require_master_key = true
+  # Master key必須設定（アセットプリコンパイル時は無効）
+  config.require_master_key = true unless ENV['SECRET_KEY_BASE_DUMMY'] == '1'
 
   # 静的ファイル配信を有効化（FargateではWebサーバーなし）
   config.public_file_server.enabled = true
@@ -96,4 +96,9 @@ Rails.application.configure do
   
   # Skip DNS rebinding protection for the default health check endpoint.
   # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
+
+  # アセットプリコンパイル時のDevise設定
+  if ENV['SECRET_KEY_BASE_DUMMY'] == '1'
+    config.secret_key_base = 'dummy_secret_key_for_asset_precompilation_only'
+  end
 end
