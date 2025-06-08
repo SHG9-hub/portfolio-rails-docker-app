@@ -29,8 +29,16 @@ ARG PGPASSWORD
 ARG PGDATABASE
 
 # アセットプリコンパイル（本番環境用）
-RUN cp config/database.yml config/database_original.yml && \
+RUN echo "🔧 Starting asset precompilation process..." && \
+    echo "Environment check:" && \
+    echo "RAILS_ENV: production" && \
+    echo "RAILS_MASTER_KEY: ${RAILS_MASTER_KEY:0:10}..." && \
+    echo "PGHOST: $PGHOST" && \
+    echo "PGUSER: $PGUSER" && \
+    echo "PGDATABASE: $PGDATABASE" && \
+    cp config/database.yml config/database_original.yml && \
     cp config/database_precompile.yml config/database.yml && \
+    echo "📁 Database configuration swapped for precompilation" && \
     RAILS_ENV=production \
     RAILS_MASTER_KEY=$RAILS_MASTER_KEY \
     PGHOST=$PGHOST \
@@ -39,7 +47,9 @@ RUN cp config/database.yml config/database_original.yml && \
     PGDATABASE=$PGDATABASE \
     SECRET_KEY_BASE_DUMMY=1 \
     bundle exec rails assets:precompile && \
-    cp config/database_original.yml config/database.yml
+    echo "✅ Asset precompilation completed successfully" && \
+    cp config/database_original.yml config/database.yml && \
+    echo "📁 Original database configuration restored"
 
 # Production stage
 FROM ruby:3.2.2-slim AS production
