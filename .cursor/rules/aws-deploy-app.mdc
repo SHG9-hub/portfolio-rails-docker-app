@@ -1,0 +1,343 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+GitHubリポジトリを確認して、app-deploymentに必要なタスクをまとめます。**Docker環境での開発を前提とします。**
+
+# AWS Fargate 本番環境デプロイ向けアプリケーション設定タスク (Docker環境対応版)
+
+## 📋 概要
+
+このドキュメントは現在のDocker環境で開発中の `rails_docker_dev_v1` プロジェクトを
+AWS ECS Fargate + Parameter Store 構成で本番デプロイするためのタスクをまとめています。
+
+## 🐳 Docker環境での作業前提
+
+**すべてのRailsコマンドは以下の形式で実行します：**
+```bash
+docker compose run --rm web [command]
+```
+
+## 🎯 インフラ環境情報
+
+- **AWS リージョン**: ap-northeast-1
+- **ECR リポジトリ**: `149465512111.dkr.ecr.ap-northeast-1.amazonaws.com/portfolio-rails-production`
+- **ECS クラスタ**: `portfolio-rails-production`
+- **RDS エンドポイント**: CloudFormation から自動取得
+- **Parameter Store 階層**: `/portfolio-rails/production/`
+
+## 🚀 実行順序とタスク
+
+### ✅ Phase 1: Secret Keys 生成（優先度: 高）
+
+#### Task 1.1: Rails Master Key 確認・生成 (Docker環境)
+```bash
+# 現在のmaster keyを確認
+docker compose run --rm web cat config/master.key
+
+# もしファイルが存在しない場合、新規生成
+docker compose run --rm web rails credentials:edit
+
+# 生成されたmaster keyを記録（Parameter Store設定で使用）
+docker compose run --rm web sh -c "echo 'RAILS_MASTER_KEY='$(cat config/master.key)"
+```
+
+#### Task 1.2: Devise Secret Key 生成 (Docker環境)
+```bash
+# Devise用secret key生成
+docker compose run --rm web rails secret
+
+# 出力された値を記録（Parameter Store設定で使用）
+echo "DEVISE_SECRET_KEY=[生成された値]"
+```
+
+**📝 出力**: 以下の値をメモしてください
+- `RAILS_MASTER_KEY`: [値]
+- `DEVISE_SECRET_KEY`: [値]
+
+---
+
+### ✅ Phase 2: Database 設定修正 ✅完了
+
+#### Task 2.1: database.yml 修正 ✅完了
+`config/database.yml` の production 部分は既に修正済み:
+
+```yaml
+production:
+  <<: *default
+  database: <%= ENV.fetch("PGDATABASE") { "portfoliorailsdb" } %>
+  host: <%= ENV.fetch("PGHOST") %>
+  username: <%= ENV.fetch("PGUSER") { "app" } %>
+  password: <%= ENV.fetch("PGPASSWORD") %>
+```
+
+---
+
+### ✅ Phase 3: 本番環境用 Dockerfile 最適化
+
+#### Task 3.1: マルチステージビルド Dockerfile 作成
+現在の `Dockerfile` を以下に置き換え:
+
+```dockerfile
+# Build stage
+FROM ruby:3.2.2-slim AS builder
+
+# 必要なパッケージのインストール
+RUN apt-get update -qq && \
+    apt-get install -y --no-install-recommends \
+    build-essential \
+    libpq-dev \
+    curl \
+    git && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# GemfileをコピーしてBundle install
+COPY Gemfile Gemfile.lock ./
+RUN bundle config set --local deployment 'true' && \
+    bundle config set --local without 'development test' && \
+    bundle install
+
+# アプリケーションコードをコピー
+COPY . .
+
+# アセットプリコンパイル（本番環境用）
+RUN RAILS_ENV=production \
+    SECRET_KEY_BASE=dummy \
+    bundle exec rails assets:precompile
+
+# Production stage
+FROM ruby:3.2.2-slim AS production
+
+# ランタイム依存パッケージのみインストール
+RUN apt-get update -qq && \
+    apt-get install -y --no-install-recommends \
+    libpq5 \
+    curl && \
+    rm -rf /var/lib/apt/lists/* && \
+    groupadd -r rails && useradd -r -g rails rails
+
+WORKDIR /app
+
+# Gemをコピー
+COPY --from=builder /usr/local/bundle /usr/local/bundle
+
+# アプリケーションとプリコンパイルされたアセットをコピー
+COPY --from=builder --chown=rails:rails /app .
+
+# 非rootユーザーに切り替え
+USER rails
+
+# ヘルスチェック
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+  CMD curl -f http://localhost:3000/health || exit 1
+
+EXPOSE 3000
+
+# マイグレーション実行後にサーバー起動
+CMD ["sh", "-c", "bundle exec rails db:migrate && bundle exec puma -C config/puma.rb"]
+```
+
+---
+
+### ✅ Phase 4: 本番環境設定調整
+
+#### Task 4.1: production.rb 設定調整
+`config/environments/production.rb` に以下の設定を追加/修正:
+
+```ruby
+# 静的ファイル配信を有効化（FargateではWebサーバーなし）
+config.public_file_server.enabled = true
+
+# ログレベル設定
+config.log_level = ENV.fetch("RAILS_LOG_LEVEL", "info")
+
+# ホスト許可設定（ALB経由のアクセス用）
+config.hosts.clear # 開発時は全許可、本番では適切に設定
+
+# Master key必須設定
+config.require_master_key = true
+```
+
+#### Task 4.2: ヘルスチェック用エンドポイント作成
+**1. ルート追加**（`config/routes.rb`）:
+
+```ruby
+Rails.application.routes.draw do
+  # ヘルスチェック用エンドポイント
+  get '/health', to: 'health#check'
+
+  # 既存のルート...
+end
+```
+
+**2. ヘルスチェックコントローラー作成**（`app/controllers/health_controller.rb`）:
+
+```ruby
+class HealthController < ApplicationController
+  def check
+    # データベース接続チェック
+    ActiveRecord::Base.connection.execute('SELECT 1')
+
+    render json: {
+      status: 'ok',
+      timestamp: Time.current,
+      version: Rails.version
+    }, status: :ok
+  rescue => e
+    render json: {
+      status: 'error',
+      error: e.message,
+      timestamp: Time.current
+    }, status: :service_unavailable
+  end
+end
+```
+
+---
+
+### ✅ Phase 5: GitHub Actions CI/CD 設定
+
+#### Task 5.1: GitHub Actions workflow 作成
+`.github/workflows/deploy.yml` を作成:
+
+```yaml
+name: Deploy to AWS ECS Fargate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  AWS_REGION: ap-northeast-1
+  ECR_REPOSITORY: portfolio-rails-production
+  ECS_CLUSTER: portfolio-rails-production
+  ECS_SERVICE: portfolio-rails-production-service
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: app_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.2.2
+          bundler-cache: true
+
+      - name: Set up database
+        env:
+          RAILS_ENV: test
+          PGHOST: localhost
+          PGUSER: postgres
+          PGPASSWORD: password
+          PGDATABASE: app_test
+        run: |
+          bundle exec rails db:create db:migrate
+
+      - name: Run tests
+        env:
+          RAILS_ENV: test
+          PGHOST: localhost
+          PGUSER: postgres
+          PGPASSWORD: password
+          PGDATABASE: app_test
+        run: bundle exec rspec
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+      - name: Update ECS service
+        run: |
+          aws ecs update-service \
+            --cluster $ECS_CLUSTER \
+            --service $ECS_SERVICE \
+            --force-new-deployment
+```
+
+#### Task 5.2: GitHub Secrets 設定
+リポジトリの Settings > Secrets and variables で以下を設定:
+
+- `AWS_ACCESS_KEY_ID`: [IAM ユーザーのアクセスキー]
+- `AWS_SECRET_ACCESS_KEY`: [IAM ユーザーのシークレットキー]
+
+---
+
+## 📋 完了チェックリスト
+
+### Phase 1: Secret Keys ✅
+
+- [ ] Rails master key 確認/生成
+- [ ] Devise secret key 生成
+- [ ] 両方の値を記録
+
+### Phase 2: Database 設定 ✅
+
+- [ ] `config/database.yml` 修正
+- [ ] 環境変数名統一（PGHOST, PGUSER, PGPASSWORD, PGDATABASE）
+
+### Phase 3: Dockerfile 最適化 ✅
+
+- [ ] マルチステージビルド実装
+- [ ] アセットプリコンパイル追加
+- [ ] 非 root ユーザー設定
+- [ ] ヘルスチェック実装
+
+### Phase 4: 本番環境設定 ✅
+
+- [ ] `production.rb` 調整
+- [ ] ヘルスチェックエンドポイント作成
+- [ ] ルート設定追加
+
+### Phase 5: CI/CD 設定 ✅
+
+- [ ] GitHub Actions workflow 作成
+- [ ] GitHub Secrets 設定
+
+---
+
+**作業完了後、インフラリポジトリに移って続きの作業を実行してください。**

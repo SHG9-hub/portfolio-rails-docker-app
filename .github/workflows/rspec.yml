@@ -1,10 +1,16 @@
-name: RSpec Tests
+name: RSpec Tests and Deploy
 
 on:
   push:
     branches: [main] # プッシュ時に実行したいブランチを指定
   pull_request:
     branches: [main] # プルリクエスト時に実行したいブランチを指定
+
+env:
+  AWS_REGION: ap-northeast-1
+  ECR_REPOSITORY: portfolio-rails-production
+  ECS_CLUSTER: portfolio-rails-production
+  ECS_SERVICE: portfolio-rails-production-service
 
 jobs:
   test:
@@ -64,6 +70,10 @@ jobs:
         run: bundle exec rails dartsass:build
         env:
           RAILS_ENV: test
+          PGHOST: localhost
+          PGUSER: postgres
+          PGPASSWORD: password
+          PGDATABASE: app_test
 
       - name: Setup database
         run: |
@@ -85,3 +95,40 @@ jobs:
           PGPASSWORD: password
           PGDATABASE: app_test
           RAILS_ENV: test
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+      - name: Update ECS service
+        run: |
+          aws ecs update-service \
+            --cluster $ECS_CLUSTER \
+            --service $ECS_SERVICE \
+            --force-new-deployment
