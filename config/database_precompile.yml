@@ -1,0 +1,4 @@
+production:
+  adapter: sqlite3
+  database: ":memory:"
+  timeout: 5000

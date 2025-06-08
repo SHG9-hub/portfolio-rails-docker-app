@@ -88,6 +88,9 @@ Rails.application.configure do
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
 
+  # アセットプリコンパイル時のDB接続を無効化
+  config.assets.initialize_on_precompile = false if ENV['RAILS_ENV'] == 'production' && ENV['PRECOMPILING_ASSETS']
+
   # ホスト許可設定（ALB経由のアクセス用）
   config.hosts.clear # 開発時は全許可、本番では適切に設定
   
