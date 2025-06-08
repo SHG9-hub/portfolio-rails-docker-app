@@ -22,8 +22,13 @@ RUN bundle config set --local deployment 'true' && \
 COPY . .
 
 # アセットプリコンパイル（本番環境用）
+# database.yml読み込みに必要な環境変数を設定（実際のDB接続は行われない）
 RUN RAILS_ENV=production \
     SECRET_KEY_BASE=dummy \
+    PGHOST=dummy \
+    PGUSER=dummy \
+    PGPASSWORD=dummy \
+    PGDATABASE=dummy \
     bundle exec rails assets:precompile
 
 # Production stage
