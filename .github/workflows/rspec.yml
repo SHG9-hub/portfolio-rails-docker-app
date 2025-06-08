@@ -116,11 +116,37 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
+      - name: Verify secrets configuration
+        run: |
+          echo "🔍 Checking secrets configuration..."
+          if [ -z "${{ secrets.RAILS_MASTER_KEY }}" ]; then
+            echo "❌ RAILS_MASTER_KEY is not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.PGHOST }}" ]; then
+            echo "❌ PGHOST is not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.PGUSER }}" ]; then
+            echo "❌ PGUSER is not set" 
+            exit 1
+          fi
+          if [ -z "${{ secrets.PGPASSWORD }}" ]; then
+            echo "❌ PGPASSWORD is not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.PGDATABASE }}" ]; then
+            echo "❌ PGDATABASE is not set"
+            exit 1
+          fi
+          echo "✅ All required secrets are configured"
+
       - name: Build, tag, and push image to Amazon ECR
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
+          echo "🏗️ Building Docker image..."
           docker build \
             --build-arg RAILS_MASTER_KEY=${{ secrets.RAILS_MASTER_KEY }} \
             --build-arg PGHOST=${{ secrets.PGHOST }} \
@@ -128,9 +154,15 @@ jobs:
             --build-arg PGPASSWORD=${{ secrets.PGPASSWORD }} \
             --build-arg PGDATABASE=${{ secrets.PGDATABASE }} \
             -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+
+          echo "🏷️ Tagging images..."
           docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+          echo "📤 Pushing images to ECR..."
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+          echo "✅ Docker build and push completed successfully"
 
       - name: Update ECS service
         run: |
