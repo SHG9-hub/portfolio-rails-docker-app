@@ -21,14 +21,23 @@ RUN bundle config set --local deployment 'true' && \
 # アプリケーションコードをコピー
 COPY . .
 
-# RAILS_MASTER_KEYをbuild-argとして受け取る
+# Build argsを受け取る
 ARG RAILS_MASTER_KEY
+ARG PGHOST
+ARG PGUSER
+ARG PGPASSWORD
+ARG PGDATABASE
 
 # アセットプリコンパイル（本番環境用）
 RUN cp config/database.yml config/database_original.yml && \
     cp config/database_precompile.yml config/database.yml && \
     RAILS_ENV=production \
     RAILS_MASTER_KEY=$RAILS_MASTER_KEY \
+    PGHOST=$PGHOST \
+    PGUSER=$PGUSER \
+    PGPASSWORD=$PGPASSWORD \
+    PGDATABASE=$PGDATABASE \
+    SECRET_KEY_BASE_DUMMY=1 \
     bundle exec rails assets:precompile && \
     cp config/database_original.yml config/database.yml
 

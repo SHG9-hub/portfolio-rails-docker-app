@@ -123,6 +123,10 @@ jobs:
         run: |
           docker build \
             --build-arg RAILS_MASTER_KEY=${{ secrets.RAILS_MASTER_KEY }} \
+            --build-arg PGHOST=dummy \
+            --build-arg PGUSER=dummy \
+            --build-arg PGPASSWORD=dummy \
+            --build-arg PGDATABASE=dummy \
             -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
