@@ -28,6 +28,13 @@ ARG PGUSER
 ARG PGPASSWORD
 ARG PGDATABASE
 
+# Build argsを環境変数として設定
+ENV RAILS_MASTER_KEY=${RAILS_MASTER_KEY}
+ENV PGHOST=${PGHOST}
+ENV PGUSER=${PGUSER}
+ENV PGPASSWORD=${PGPASSWORD}
+ENV PGDATABASE=${PGDATABASE}
+
 # bashシェルを使用するように設定
 SHELL ["/bin/bash", "-c"]
 
@@ -39,9 +46,8 @@ RUN echo "🔧 Starting asset precompilation process..." && \
     echo "PGHOST: $PGHOST" && \
     echo "PGUSER: $PGUSER" && \
     echo "PGDATABASE: $PGDATABASE" && \
-    cp config/database.yml config/database_original.yml && \
-    cp config/database_precompile.yml config/database.yml && \
-    echo "📁 Database configuration swapped for precompilation" && \
+    if [ -f config/database.yml ]; then cp config/database.yml config/database_original.yml; else echo "⚠️ database.yml not found, skipping backup"; fi && \
+    if [ -f config/database_precompile.yml ]; then cp config/database_precompile.yml config/database.yml; echo "📁 Database configuration swapped for precompilation"; else echo "⚠️ database_precompile.yml not found, using original database.yml"; fi && \
     RAILS_ENV=production \
     RAILS_MASTER_KEY=$RAILS_MASTER_KEY \
     PGHOST=$PGHOST \
@@ -51,11 +57,14 @@ RUN echo "🔧 Starting asset precompilation process..." && \
     SECRET_KEY_BASE_DUMMY=1 \
     bundle exec rails assets:precompile && \
     echo "✅ Asset precompilation completed successfully" && \
-    cp config/database_original.yml config/database.yml && \
-    echo "📁 Original database configuration restored"
+    if [ -f config/database_original.yml ]; then cp config/database_original.yml config/database.yml; echo "📁 Original database configuration restored"; else echo "⚠️ database_original.yml not found, keeping current configuration"; fi
 
 # Production stage
 FROM ruby:3.2.2-slim AS production
+
+# Build argsを再度受け取る（production stageで使用するため）
+ARG RAILS_MASTER_KEY
+ENV RAILS_MASTER_KEY=${RAILS_MASTER_KEY}
 
 # ランタイム依存パッケージのみインストール
 RUN apt-get update -qq && \
