@@ -28,6 +28,9 @@ ARG PGUSER
 ARG PGPASSWORD
 ARG PGDATABASE
 
+# bashシェルを使用するように設定
+SHELL ["/bin/bash", "-c"]
+
 # アセットプリコンパイル（本番環境用）
 RUN echo "🔧 Starting asset precompilation process..." && \
     echo "Environment check:" && \
@@ -80,4 +83,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
 EXPOSE 3000
 
 # マイグレーション実行後にサーバー起動
-CMD ["sh", "-c", "bundle exec rails db:migrate && bundle exec puma -C config/puma.rb"]
+CMD ["bash", "-c", "bundle exec rails db:migrate && bundle exec puma -C config/puma.rb"]
