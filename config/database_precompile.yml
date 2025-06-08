@@ -1,4 +1,8 @@
 production:
-  adapter: sqlite3
-  database: ":memory:"
-  timeout: 5000
+  adapter: postgresql
+  encoding: unicode
+  database: <%= ENV.fetch("PGDATABASE") { "portfoliorailsdb" } %>
+  host: <%= ENV.fetch("PGHOST") { "localhost" } %>
+  username: <%= ENV.fetch("PGUSER") { "app" } %>
+  password: <%= ENV.fetch("PGPASSWORD") { "password" } %>
+  pool: 5

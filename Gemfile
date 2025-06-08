@@ -14,9 +14,6 @@ gem "dartsass-rails"
 # Use postgresql as the database for Active Record
 gem "pg", "~> 1.1"
 
-# SQLite3 for asset precompilation (build-time only)
-gem "sqlite3", "~> 1.4", group: :assets
-
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", ">= 5.0"
 
