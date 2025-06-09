@@ -1,6 +1,6 @@
 class HealthController < ApplicationController
-  # ALBヘルスチェック用にSSLを無効化
-  force_ssl except: [:check]
+  # ALBヘルスチェック用にSSLリダイレクトをスキップ
+  skip_before_action :force_ssl_redirect, only: [:check], if: :ssl_redirect_enabled?
 
   def check
     # データベース接続チェック
@@ -17,5 +17,11 @@ class HealthController < ApplicationController
       error: e.message,
       timestamp: Time.current
     }, status: :service_unavailable
+  end
+
+  private
+
+  def ssl_redirect_enabled?
+    Rails.application.config.force_ssl
   end
 end
