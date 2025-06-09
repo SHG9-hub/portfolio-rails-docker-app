@@ -42,6 +42,9 @@ RSpec.configure do |config|
   # For Controller tests
   config.include Devise::Test::ControllerHelpers, type: :controller
 
+  # For System tests
+  config.include Devise::Test::IntegrationHelpers, type: :system
+
   # Include Factory Bot syntax to use methods like create, build, build_stubbed
   # config.include FactoryBot::Syntax::Methods
 

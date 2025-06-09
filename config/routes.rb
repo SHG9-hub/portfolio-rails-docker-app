@@ -5,6 +5,10 @@ Rails.application.routes.draw do
   devise_for :users
   resources :attendances
 
-  # ALBヘルスチェック対応: rootでもヘルスチェック可能に
-  root 'health#check'
+  # ALBヘルスチェック対応: 本番環境のみrootをヘルスチェックに
+  if Rails.env.production?
+    root 'health#check'
+  else
+    root to: redirect('/users/sign_in')
+  end
 end
