@@ -179,16 +179,30 @@ jobs:
             
             # 現在のTaskDefinitionを取得し、必要なフィールドのみ抽出
             echo "📋 Getting current task definition..."
+            if ! aws ecs describe-task-definition --task-definition $ECR_REPOSITORY >/dev/null 2>&1; then
+              echo "❌ Task definition $ECR_REPOSITORY not found. Please create it first via CloudFormation."
+              exit 1
+            fi
+            
             TASK_DEF_JSON=$(aws ecs describe-task-definition --task-definition $ECR_REPOSITORY --query 'taskDefinition.{family: family, networkMode: networkMode, requiresCompatibilities: requiresCompatibilities, cpu: cpu, memory: memory, executionRoleArn: executionRoleArn, taskRoleArn: taskRoleArn, containerDefinitions: containerDefinitions}')
+            
+            # デバッグ用：取得したJSONの構造を確認
+            echo "🔍 Current task definition structure:"
+            echo "$TASK_DEF_JSON" | jq '.containerDefinitions[0] | {image, environment}'
             
             # コンテナイメージを新しいURIに更新し、RAILS_MASTER_KEYを環境変数として追加
             echo "🔄 Updating container image and environment variables..."
-            UPDATED_TASK_DEF=$(echo "$TASK_DEF_JSON" | jq --arg image "$NEW_IMAGE_URI" --arg rails_master_key "${{ secrets.RAILS_MASTER_KEY }}" '
+            if ! UPDATED_TASK_DEF=$(echo "$TASK_DEF_JSON" | jq --arg image "$NEW_IMAGE_URI" --arg rails_master_key "${{ secrets.RAILS_MASTER_KEY }}" '
               .containerDefinitions[0].image = $image |
-              .containerDefinitions[0].environment = (.containerDefinitions[0].environment // []) |
-              map(if .name == "RAILS_MASTER_KEY" then .value = $rails_master_key else . end) |
-              if any(.name == "RAILS_MASTER_KEY") then . else . + [{"name": "RAILS_MASTER_KEY", "value": $rails_master_key}] end
-            ')
+              .containerDefinitions[0].environment = (
+                (.containerDefinitions[0].environment // []) | 
+                map(if .name == "RAILS_MASTER_KEY" then .value = $rails_master_key else . end) |
+                if any(.name == "RAILS_MASTER_KEY") then . else . + [{"name": "RAILS_MASTER_KEY", "value": $rails_master_key}] end
+              )
+            '); then
+              echo "❌ Failed to update task definition JSON. Check the task definition structure above."
+              exit 1
+            fi
             
             # 新しいTaskDefinitionを登録
             echo "📝 Registering new task definition..."
