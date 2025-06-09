@@ -22,3 +22,4 @@ Things you may want to cover:
 * Deployment instructions
 
 * ...
+# Updated RAILS_MASTER_KEY #午後
