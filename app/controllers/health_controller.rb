@@ -1,6 +1,6 @@
 class HealthController < ApplicationController
-  # ALBヘルスチェック用にSSLを無効化
-  skip_before_action :force_ssl_redirect, only: [:check], if: :ssl_configured?
+  # ALBヘルスチェック用にSSLを無効化（将来的にSSLリダイレクトが追加された場合の準備）
+  # skip_before_action :force_ssl_redirect, only: [:check], if: :ssl_configured?
 
   def check
     # データベース接続チェック
