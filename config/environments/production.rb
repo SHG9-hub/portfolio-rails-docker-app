@@ -50,7 +50,13 @@ Rails.application.configure do
   # config.assume_ssl = true
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
-  config.force_ssl = true
+  # ヘルスチェックエンドポイントは除外 
+  config.force_ssl = ENV.fetch('FORCE_SSL', 'true') == 'true'
+  config.ssl_options = {
+    redirect: {
+      exclude: ->(request) { request.path == '/health' }
+    }
+  }
 
   # Log to STDOUT by default
   config.logger = ActiveSupport::Logger.new(STDOUT)

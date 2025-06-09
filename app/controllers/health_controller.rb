@@ -1,4 +1,7 @@
 class HealthController < ApplicationController
+  # ALBヘルスチェック用にSSL強制を無効化
+  skip_before_action :verify_authenticity_token
+  
   def check
     # データベース接続チェック
     ActiveRecord::Base.connection.execute('SELECT 1')
