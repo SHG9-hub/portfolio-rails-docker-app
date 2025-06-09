@@ -185,8 +185,9 @@ jobs:
             echo "🔄 Updating container image and environment variables..."
             UPDATED_TASK_DEF=$(echo "$TASK_DEF_JSON" | jq --arg image "$NEW_IMAGE_URI" --arg rails_master_key "${{ secrets.RAILS_MASTER_KEY }}" '
               .containerDefinitions[0].image = $image |
-              .containerDefinitions[0].environment = (.containerDefinitions[0].environment // []) + [{"name": "RAILS_MASTER_KEY", "value": $rails_master_key}] |
-              .containerDefinitions[0].environment |= unique_by(.name)
+              .containerDefinitions[0].environment = (.containerDefinitions[0].environment // []) |
+              map(if .name == "RAILS_MASTER_KEY" then .value = $rails_master_key else . end) |
+              if any(.name == "RAILS_MASTER_KEY") then . else . + [{"name": "RAILS_MASTER_KEY", "value": $rails_master_key}] end
             ')
             
             # 新しいTaskDefinitionを登録
