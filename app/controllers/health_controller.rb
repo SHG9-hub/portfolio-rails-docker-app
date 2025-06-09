@@ -1,6 +1,7 @@
 class HealthController < ApplicationController
   # ALBヘルスチェック用にSSL強制を無効化
   skip_before_action :verify_authenticity_token
+  skip_before_action :authenticate_user!
   before_action :disable_ssl_redirect
   
   def check
