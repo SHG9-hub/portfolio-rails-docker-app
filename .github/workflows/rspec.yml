@@ -164,62 +164,20 @@ jobs:
 
           echo "✅ Docker build and push completed successfully"
 
-      - name: Update ECS service with new image
+      - name: Deploy to ECS
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          echo "🔍 Checking ECS service status..."
-          if aws ecs describe-services --cluster $ECS_CLUSTER --services $ECS_SERVICE --region $AWS_REGION --query 'services[0].serviceName' --output text 2>/dev/null | grep -q "$ECS_SERVICE"; then
-            echo "✅ ECS service exists"
-            
-            # 新しいイメージURIを準備
-            NEW_IMAGE_URI="$ECR_REGISTRY/$ECR_REPOSITORY:latest"
-            echo "🖼️ Using image URI: $NEW_IMAGE_URI"
-            
-            # 現在のTaskDefinitionを取得し、必要なフィールドのみ抽出
-            echo "📋 Getting current task definition..."
-            if ! aws ecs describe-task-definition --task-definition $ECR_REPOSITORY >/dev/null 2>&1; then
-              echo "❌ Task definition $ECR_REPOSITORY not found. Please create it first via CloudFormation."
-              exit 1
-            fi
-            
-            TASK_DEF_JSON=$(aws ecs describe-task-definition --task-definition $ECR_REPOSITORY --query 'taskDefinition.{family: family, networkMode: networkMode, requiresCompatibilities: requiresCompatibilities, cpu: cpu, memory: memory, executionRoleArn: executionRoleArn, taskRoleArn: taskRoleArn, containerDefinitions: containerDefinitions}')
-            
-            # デバッグ用：取得したJSONの構造を確認
-            echo "🔍 Current task definition structure:"
-            echo "$TASK_DEF_JSON" | jq '.containerDefinitions[0] | {image, environment}'
-            
-            # コンテナイメージを新しいURIに更新し、RAILS_MASTER_KEYを環境変数として追加
-            echo "🔄 Updating container image and environment variables..."
-            if ! UPDATED_TASK_DEF=$(echo "$TASK_DEF_JSON" | jq --arg image "$NEW_IMAGE_URI" --arg rails_master_key "${{ secrets.RAILS_MASTER_KEY }}" '
-              .containerDefinitions[0].image = $image |
-              .containerDefinitions[0].environment = (
-                (.containerDefinitions[0].environment // []) | 
-                map(if .name == "RAILS_MASTER_KEY" then .value = $rails_master_key else . end) |
-                if any(.name == "RAILS_MASTER_KEY") then . else . + [{"name": "RAILS_MASTER_KEY", "value": $rails_master_key}] end
-              )
-            '); then
-              echo "❌ Failed to update task definition JSON. Check the task definition structure above."
-              exit 1
-            fi
-            
-            # 新しいTaskDefinitionを登録
-            echo "📝 Registering new task definition..."
-            echo "$UPDATED_TASK_DEF" > /tmp/task-def.json
-            NEW_TASK_DEF_ARN=$(aws ecs register-task-definition --cli-input-json file:///tmp/task-def.json --query 'taskDefinition.taskDefinitionArn' --output text)
-            echo "✅ New task definition registered: $NEW_TASK_DEF_ARN"
-            
-            # ECSサービスを新しいTaskDefinitionで更新
-            echo "🚀 Updating ECS service..."
-            aws ecs update-service \
-              --cluster $ECS_CLUSTER \
-              --service $ECS_SERVICE \
-              --task-definition $NEW_TASK_DEF_ARN
-              
-            echo "✅ ECS service update completed successfully"
-          else
-            echo "⚠️ ECS service $ECS_SERVICE does not exist in cluster $ECS_CLUSTER"
-            echo "📝 Next steps: Create ECS service via CloudFormation or AWS Console"
-            echo "🚀 Docker image has been successfully pushed to ECR and is ready for deployment"
-          fi
+          echo "🚀 Triggering ECS service deployment..."
+          echo "📦 New image: $ECR_REGISTRY/$ECR_REPOSITORY:latest"
+
+          # ECSサービスの強制更新（最新のECRイメージを使用）
+          aws ecs update-service \
+            --cluster $ECS_CLUSTER \
+            --service $ECS_SERVICE \
+            --force-new-deployment \
+            --region $AWS_REGION
+
+          echo "✅ ECS deployment triggered successfully!"
+          echo "🔄 ECS will automatically pull the latest image from ECR"
