@@ -164,15 +164,41 @@ jobs:
 
           echo "✅ Docker build and push completed successfully"
 
-      - name: Check ECS service status
+      - name: Update ECS task definition and service
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
           echo "🔍 Checking ECS service status..."
           if aws ecs describe-services --cluster $ECS_CLUSTER --services $ECS_SERVICE --region $AWS_REGION --query 'services[0].serviceName' --output text 2>/dev/null | grep -q "$ECS_SERVICE"; then
-            echo "✅ ECS service exists, updating deployment..."
+            echo "✅ ECS service exists, updating task definition..."
+            
+            # 現在のTaskDefinitionを取得
+            TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition $ECR_REPOSITORY --query 'taskDefinition')
+            
+            # 新しいイメージURIでTaskDefinitionを更新
+            NEW_IMAGE_URI="$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+            echo "🖼️ New image URI: $NEW_IMAGE_URI"
+            
+            # TaskDefinitionから不要なフィールドを除去し、新しいイメージで更新
+            NEW_TASK_DEFINITION=$(echo $TASK_DEFINITION | jq --arg IMAGE "$NEW_IMAGE_URI" '
+              del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .placementConstraints, .compatibilities, .registeredAt, .registeredBy) |
+              .containerDefinitions[0].image = $IMAGE
+            ')
+            
+            # 新しいTaskDefinitionを登録
+            echo "📋 Registering new task definition..."
+            NEW_TASK_DEF_ARN=$(echo $NEW_TASK_DEFINITION | aws ecs register-task-definition --cli-input-json file:///dev/stdin --query 'taskDefinition.taskDefinitionArn' --output text)
+            echo "✅ New task definition registered: $NEW_TASK_DEF_ARN"
+            
+            # ECSサービスを新しいTaskDefinitionで更新
+            echo "🚀 Updating ECS service with new task definition..."
             aws ecs update-service \
               --cluster $ECS_CLUSTER \
               --service $ECS_SERVICE \
-              --force-new-deployment
+              --task-definition $NEW_TASK_DEF_ARN
+              
+            echo "✅ ECS service update initiated successfully"
           else
             echo "⚠️ ECS service $ECS_SERVICE does not exist in cluster $ECS_CLUSTER"
             echo "📝 Next steps: Create ECS service via CloudFormation or AWS Console"
