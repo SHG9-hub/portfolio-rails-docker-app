@@ -181,9 +181,13 @@ jobs:
             echo "📋 Getting current task definition..."
             TASK_DEF_JSON=$(aws ecs describe-task-definition --task-definition $ECR_REPOSITORY --query 'taskDefinition.{family: family, networkMode: networkMode, requiresCompatibilities: requiresCompatibilities, cpu: cpu, memory: memory, executionRoleArn: executionRoleArn, taskRoleArn: taskRoleArn, containerDefinitions: containerDefinitions}')
             
-            # コンテナイメージを新しいURIに更新
-            echo "🔄 Updating container image..."
-            UPDATED_TASK_DEF=$(echo "$TASK_DEF_JSON" | jq --arg image "$NEW_IMAGE_URI" '.containerDefinitions[0].image = $image')
+            # コンテナイメージを新しいURIに更新し、RAILS_MASTER_KEYを環境変数として追加
+            echo "🔄 Updating container image and environment variables..."
+            UPDATED_TASK_DEF=$(echo "$TASK_DEF_JSON" | jq --arg image "$NEW_IMAGE_URI" --arg rails_master_key "${{ secrets.RAILS_MASTER_KEY }}" '
+              .containerDefinitions[0].image = $image |
+              .containerDefinitions[0].environment = (.containerDefinitions[0].environment // []) + [{"name": "RAILS_MASTER_KEY", "value": $rails_master_key}] |
+              .containerDefinitions[0].environment |= unique_by(.name)
+            ')
             
             # 新しいTaskDefinitionを登録
             echo "📝 Registering new task definition..."
