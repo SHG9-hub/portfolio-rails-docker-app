@@ -4,5 +4,7 @@ Rails.application.routes.draw do
   
   devise_for :users
   resources :attendances
-  root to: "attendances#index"
+
+  # ALBヘルスチェック対応: ログインページをrootに設定
+  root to: redirect('/users/sign_in')
 end

@@ -16,3 +16,8 @@ services:
       - db
     environment:
       DATABASE_URL: postgres://postgres:password@db
+      PGHOST: db
+      PGUSER: postgres
+      PGPASSWORD: password
+      PGDATABASE: app_development
+      RAILS_ENV: development
