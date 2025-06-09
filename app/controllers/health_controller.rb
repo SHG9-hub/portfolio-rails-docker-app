@@ -1,4 +1,7 @@
 class HealthController < ApplicationController
+  # ALBヘルスチェック用にSSLを無効化
+  skip_before_action :force_ssl_redirect, only: [:check], if: :ssl_configured?
+
   def check
     # データベース接続チェック
     ActiveRecord::Base.connection.execute('SELECT 1')
@@ -15,4 +18,10 @@ class HealthController < ApplicationController
       timestamp: Time.current
     }, status: :service_unavailable
   end
-end 
+
+  private
+
+  def ssl_configured?
+    Rails.application.config.force_ssl
+  end
+end
