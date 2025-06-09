@@ -1,6 +1,8 @@
 class HealthController < ApplicationController
-  # ALBヘルスチェック用にSSLリダイレクトをスキップ
-  skip_before_action :force_ssl_redirect, only: [:check], if: :ssl_redirect_enabled?
+  # ALBヘルスチェック用にSSLリダイレクトを無効化
+  def force_ssl_redirect?
+    false # ヘルスチェックエンドポイントではSSLリダイレクトを無効化
+  end
 
   def check
     # データベース接続チェック
@@ -9,7 +11,8 @@ class HealthController < ApplicationController
     render json: {
       status: 'ok',
       timestamp: Time.current,
-      version: Rails.version
+      version: Rails.version,
+      environment: Rails.env
     }, status: :ok
   rescue => e
     render json: {
@@ -17,11 +20,5 @@ class HealthController < ApplicationController
       error: e.message,
       timestamp: Time.current
     }, status: :service_unavailable
-  end
-
-  private
-
-  def ssl_redirect_enabled?
-    Rails.application.config.force_ssl
   end
 end
