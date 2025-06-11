@@ -11,6 +11,8 @@ Rails.application.routes.draw do
   end
 
   # 未ログインのユーザーはログインページへ
-  # Deviseのコントローラーを直接指定する代わりにリダイレクトを使用
-  root to: redirect('/users/sign_in')
+  # devise_scopeブロックでDeviseのコントローラーを正しく設定
+  devise_scope :user do
+    root to: "devise/sessions#new"
+  end
 end
