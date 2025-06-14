@@ -1,14 +1,11 @@
 class HealthController < ApplicationController
-  # ALBヘルスチェック用にSSL強制を無効化
   skip_before_action :verify_authenticity_token
   skip_before_action :authenticate_user!
   before_action :disable_ssl_redirect
   
   def check
-    # データベース接続チェック
     ActiveRecord::Base.connection.execute('SELECT 1')
 
-    # HTTPヘッダーを明示的に設定
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
     response.headers['Pragma'] = 'no-cache'
     response.headers['Expires'] = '0'
@@ -31,7 +28,6 @@ class HealthController < ApplicationController
   private
 
   def disable_ssl_redirect
-    # SSL強制リダイレクトを明示的に無効化
     request.env['HTTP_X_FORWARDED_PROTO'] = 'http' if Rails.env.production?
   end
 end

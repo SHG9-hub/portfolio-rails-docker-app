@@ -43,3 +43,7 @@
 .editorconfig
 .prettierrc
 .prettierignore
+
+# Ignore doc directory except images
+/doc/*
+!/doc/images/

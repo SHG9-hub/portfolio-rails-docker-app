@@ -93,7 +93,7 @@ Rails.application.configure do
   config.assets.initialize_on_precompile = false if ENV['RAILS_ENV'] == 'production' && ENV['PRECOMPILING_ASSETS']
 
   # ホスト許可設定（ALB経由のアクセス用）
-  config.hosts.clear # 開発時は全許可、本番では適切に設定
+  config.hosts.clear 
   
   # Skip DNS rebinding protection for the default health check endpoint.
   # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }

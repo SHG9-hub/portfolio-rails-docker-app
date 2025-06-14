@@ -5,13 +5,10 @@ Rails.application.routes.draw do
   devise_for :users
   resources :attendances
 
-  # ログイン済みのユーザーは勤怠一覧ページへ
   authenticated :user do
     root 'attendances#index', as: :authenticated_root
   end
 
-  # 未ログインのユーザーはログインページへ
-  # devise_scopeブロックでDeviseのコントローラーを正しく設定
   devise_scope :user do
     root to: "devise/sessions#new"
   end
